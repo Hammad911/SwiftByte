@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics KPIs · SwiftBite</title>
+  <link rel="stylesheet" href="css/analytics-dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+  <h1>Analytics dashboard</h1>
+  <p class="sub">Demo counters for this browser session (stored in sessionStorage). Use the app — totals update live here.</p>
+
+  <div id="status" class="status warn">Loading…</div>
+
+  <div class="kpi-grid" id="grid">
+    <div class="kpi-card"><div class="kpi-label">Logins OK</div><div class="kpi-value na" id="k-login_success">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Dashboard views</div><div class="kpi-value na" id="k-screen_dashboard">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Restaurant views</div><div class="kpi-value na" id="k-screen_restaurant">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Food item views</div><div class="kpi-value na" id="k-screen_food_item">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Order now</div><div class="kpi-value na" id="k-order_now_clicks">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Orders placed</div><div class="kpi-value na" id="k-orders_placed">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Add to cart</div><div class="kpi-value na" id="k-add_to_cart">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Quick +Add</div><div class="kpi-value na" id="k-menu_quick_adds">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Menu opens</div><div class="kpi-value na" id="k-menu_item_opens">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Favorites</div><div class="kpi-value na" id="k-favorite_toggles">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Back taps</div><div class="kpi-value na" id="k-back_clicks">—</div></div>
+    <div class="kpi-card wide"><div class="kpi-label">Source</div><div class="kpi-value na" id="demo-hint">Local demo · no cloud backend</div></div>
+  </div>
+
+  <div class="links">
+    Clear session counters by closing the tab or clearing site data for this origin.<br><br>
+    <a href="dashboard.html">← Back to app</a>
+  </div>
+  <p class="last-updated" id="last-updated"></p>
+</div>
+
+<script src="js/analytics.js"></script>
+<script src="js/live-kpis.js"></script>
+<script>
+(function () {
+  if (window.SwiftBiteAnalytics && typeof SwiftBiteAnalytics.trackPageView === "function") {
+    SwiftBiteAnalytics.trackPageView();
+  }
+
+  var statusEl = document.getElementById("status");
+  function setWarn(msg) {
+    statusEl.className = "status warn";
+    statusEl.textContent = msg;
+  }
+  function setOk(msg) {
+    statusEl.className = "status ok";
+    statusEl.textContent = msg;
+  }
+  function setErr(msg) {
+    statusEl.className = "status err";
+    statusEl.textContent = msg;
+  }
+
+  var hint = document.getElementById("demo-hint");
+  if (hint) hint.textContent = "sessionStorage KPI snapshot";
+
+  if (!window.SwiftBiteLiveKpis) {
+    setErr("Missing js/live-kpis.js");
+    return;
+  }
+
+  SwiftBiteLiveKpis.subscribeMetricsSummary({
+    onStatus: function (kind, msg) {
+      if (kind === "ok") setOk(msg);
+      else if (kind === "warn") setWarn(msg);
+      else if (kind === "err") setErr(msg);
+      else setWarn(msg);
+    },
+    onData: function () {
+      var lu = document.getElementById("last-updated");
+      if (lu) lu.textContent = "Tip: place orders and open screens — numbers accumulate until you clear session storage.";
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

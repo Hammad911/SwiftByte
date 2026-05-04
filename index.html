@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftBite · Login</title>
+
+  <link rel="stylesheet" href="css/login.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- Logo -->
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <span>Swift<span class="accent">Bite</span></span>
+  </div>
+
+  <!-- Title -->
+  <h2 class="title">Login</h2>
+
+  <fieldset class="sb-role-fieldset">
+    <legend class="sb-role-legend">Sign in as</legend>
+    <div class="sb-role-row" role="presentation">
+      <label class="sb-role-chip">
+        <input type="radio" name="sb-login-role" value="customer" checked>
+        <span>Customer</span>
+      </label>
+      <label class="sb-role-chip">
+        <input type="radio" name="sb-login-role" value="rider">
+        <span>Rider</span>
+      </label>
+      <label class="sb-role-chip" title="Restaurant manager">
+        <input type="radio" name="sb-login-role" value="restaurant_manager">
+        <span>Restaurant</span>
+      </label>
+    </div>
+  </fieldset>
+
+  <!-- Email -->
+  <label for="login-email">Email</label>
+  <input id="login-email" type="email" autocomplete="email" placeholder="you@example.com">
+
+  <!-- Password -->
+  <label for="login-password">Password</label>
+  <div class="password-row">
+    <input id="login-password" type="password" autocomplete="current-password" placeholder="Password">
+    <span class="eye" role="button" tabindex="0" aria-label="Show password">👁</span>
+  </div>
+
+  <div class="forgot">Forgot password?</div>
+
+  <!-- Primary -->
+  <button type="button" class="btn primary-login" id="login-submit">Login</button>
+
+  <button type="button" class="btn btn-secondary" id="guest-btn">Continue as guest</button>
+
+  <!-- Signup -->
+  <div class="signup">
+    Don't have an account? <span data-go-signup>Sign Up</span>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider">
+    <div></div>
+    <span>Sign in with</span>
+    <div></div>
+  </div>
+
+  <!-- Social -->
+  <div class="social">📘 Continue with Facebook</div>
+  <div class="social">🟢 Continue with Google</div>
+
+</div>
+
+<script src="js/analytics.js"></script>
+<script src="js/swiftbite-auth.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

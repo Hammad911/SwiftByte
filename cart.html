@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftBite · Basket &amp; checkout</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container sb-stack">
+  <div class="sb-top-bar">
+    <span class="sb-top-brand">SwiftBite</span>
+    <span class="sb-top-tag">Delivery</span>
+  </div>
+
+  <h1 class="sb-screen-title">Your basket</h1>
+  <p class="sb-screen-sub">One restaurant per order · taxes &amp; delivery calculated at checkout.</p>
+
+  <div id="cart-restaurant-chip" class="cart-restaurant-chip" style="display:none;"></div>
+
+  <div id="cart-empty" class="cart-empty">Basket is empty. Open a restaurant and add dishes.</div>
+  <div id="cart-lines" class="cart-lines"></div>
+
+  <div id="checkout-panel" class="checkout-panel" style="display:none;">
+    <h2 class="checkout-heading">Deliver to</h2>
+    <label class="checkout-label" for="checkout-address">Street address</label>
+    <input id="checkout-address" class="checkout-input" type="text" autocomplete="street-address" placeholder="Building, street, area">
+
+    <label class="checkout-label" for="checkout-flat">Flat / floor (optional)</label>
+    <input id="checkout-flat" class="checkout-input" type="text" autocomplete="address-line2" placeholder="e.g. Block B, 3rd floor">
+
+    <label class="checkout-label" for="checkout-phone">Phone (optional)</label>
+    <input id="checkout-phone" class="checkout-input" type="tel" autocomplete="tel" placeholder="03xx — for rider contact">
+
+    <label class="checkout-label" for="checkout-notes">Instructions (optional)</label>
+    <textarea id="checkout-notes" class="checkout-textarea" rows="2" placeholder="Gate code, landmark, leave at door…"></textarea>
+
+    <div id="cart-min-warning" class="cart-min-warning" style="display:none;"></div>
+
+    <h2 class="checkout-heading">Summary</h2>
+    <div class="fee-row"><span>Subtotal</span><strong id="fee-subtotal">Rs. 0</strong></div>
+    <div class="fee-row"><span>Delivery</span><strong id="fee-delivery">Rs. 0</strong></div>
+    <div class="fee-row"><span>Tax</span><strong id="fee-tax">Rs. 0</strong></div>
+    <div class="fee-row fee-total"><span>Total</span><strong id="fee-total">Rs. 0</strong></div>
+
+    <button type="button" class="sb-primary-btn" id="checkout-btn">Place order</button>
+    <p class="sb-fine-print">Demo only — no real payment. Order saved on this device.</p>
+  </div>
+
+  <p class="sb-muted-link"><a href="dashboard.html">← Continue shopping</a></p>
+</div>
+
+<script src="js/analytics.js"></script>
+<script src="js/menu-data.js"></script>
+<script src="js/delivery-context.js"></script>
+<script src="js/orders-store.js"></script>
+<script src="js/cart-store.js"></script>
+<script src="js/swiftbite-auth.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

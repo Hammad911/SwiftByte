@@ -1,0 +1,227 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(165deg, #2c2c30 0%, #101012 55%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+/* ── Phone shell ─────────────────────────────────── */
+.container {
+  width: 340px;
+  height: 680px;
+  max-height: calc(100vh - 32px);
+  background: #f8f8f9;
+  border-radius: 28px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow:
+    0 32px 64px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* ── Hero image ──────────────────────────────────── */
+.hero {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-color: #ddd;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.back-btn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255,255,255,0.85);
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* ── Scrollable content ──────────────────────────── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 18px 10px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Title & description ─────────────────────────── */
+.item-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 6px;
+}
+
+.item-desc {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+/* ── Section labels ──────────────────────────────── */
+.section-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 10px;
+}
+
+/* ── Option rows (checkbox / radio) ─────────────── */
+.option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 18px;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  position: relative;
+}
+
+/* Hide native input */
+.option-row input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Custom checkmark box */
+.checkmark {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+  position: relative;
+}
+
+/* Checked state — filled orange square */
+.option-row input:checked ~ .checkmark {
+  background: #ff4d2e;
+  border-color: #ff4d2e;
+}
+
+/* Tick mark */
+.option-row input:checked ~ .checkmark::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 8px;
+  height: 12px;
+  border: 2px solid white;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+/* ── Quantity row ────────────────────────────────── */
+.quantity-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  background: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  transition: border-color 0.2s;
+}
+
+.qty-btn.plus {
+  background: #ff4d2e;
+  border-color: #ff4d2e;
+  color: white;
+}
+
+.qty-btn:active {
+  opacity: 0.75;
+}
+
+.qty-value {
+  font-size: 15px;
+  font-weight: 600;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ── Sticky footer / Add to Cart ─────────────────── */
+.footer {
+  padding: 12px 18px 16px;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.cart-btn {
+  width: 100%;
+  background: #ff4d2e;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: opacity 0.2s;
+}
+
+.cart-btn:active {
+  opacity: 0.85;
+}
+
+.cart-price {
+  font-weight: 700;
+}

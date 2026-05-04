@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftBite · Restaurant partner</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/partner-portal.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container sb-stack">
+  <div class="sb-top-bar">
+    <span class="sb-top-brand">SwiftBite</span>
+    <span class="sb-top-tag">Restaurant</span>
+  </div>
+
+  <h1 class="sb-screen-title">Orders</h1>
+  <p class="pp-note">Approve new tickets, prepare meals, then mark ready so a rider can collect. Demo only — data stays on this browser.</p>
+
+  <label class="sb-visually-hidden" for="rp-rest-select">Restaurant</label>
+  <select id="rp-rest-select" class="pp-rest-picker" aria-label="Restaurant"></select>
+
+  <div id="rp-root"></div>
+
+  <p class="sb-muted-link pp-top-links"><a href="dashboard.html">← Customer app</a> · <a href="rider-portal.html">Rider portal</a></p>
+</div>
+
+<script src="js/analytics.js"></script>
+<script src="js/menu-data.js"></script>
+<script src="js/orders-store.js"></script>
+<script src="js/partner-portals.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(165deg, #2c2c30 0%, #101012 55%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+/* Container */
+.container {
+  width: 340px;
+  height: 680px;
+  max-height: calc(100vh - 32px);
+  background: #f6f6f7;
+  border-radius: 28px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 32px 64px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* Banner */
+.banner {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6a00ff;
+  font-weight: 700;
+  text-align: center;
+}
+
+.taco-banner {
+  background: linear-gradient(135deg, #ffd54f, #ffb300);
+}
+
+.saltish-banner {
+  background: linear-gradient(135deg, #b2ebf2, #4dd0e1);
+  color: #004d40;
+}
+
+/* Content */
+.content {
+  padding: 15px;
+  overflow-y: auto;
+}
+
+/* Title */
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #666;
+  margin: 5px 0;
+}
+
+.info {
+  font-size: 12px;
+  margin: 10px 0;
+}
+
+/* Heart */
+.heart {
+  cursor: pointer;
+  font-size: 18px;
+  color: #ccc;
+}
+
+.heart.active {
+  color: #ff4d2e;
+}
+
+/* Section */
+.section-title {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* Menu item */
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.menu-item h4 {
+  font-size: 13px;
+}
+
+.menu-item p {
+  font-size: 11px;
+  color: #666;
+  margin: 4px 0;
+}
+
+.price {
+  color: #ff4d2e;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Image */
+.food-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+  background-size: cover;
+}

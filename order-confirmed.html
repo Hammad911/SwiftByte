@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftBite · Order confirmed</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container sb-stack sb-centered-flow">
+  <div class="oc-check">✓</div>
+  <h1 class="sb-screen-title" id="oc-title">Order confirmed!</h1>
+  <p class="oc-meta" id="oc-meta"></p>
+  <p class="oc-address" id="oc-address"></p>
+  <p class="oc-total-line">Total paid <strong id="oc-total">Rs. 0</strong></p>
+
+  <a class="sb-primary-btn oc-btn" id="oc-tracking" style="display:none" href="#">Track delivery</a>
+  <a class="sb-outline-btn" href="orders.html">Order history</a>
+  <p class="sb-muted-link"><a href="dashboard.html">← Back home</a></p>
+</div>
+
+<script src="js/analytics.js"></script>
+<script src="js/orders-store.js"></script>
+<script src="js/swiftbite-auth.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftBite · Dish</title>
+
+  <link rel="stylesheet" href="css/foodItem.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="sb-top-bar">
+    <span class="sb-top-brand">SwiftBite</span>
+    <button type="button" class="sb-header-cart" id="header-cart-btn">🛒 <span id="cart-badge">0</span></button>
+  </div>
+
+  <div class="hero" style="background-image: url('assets/2.png')"></div>
+
+  <div class="content">
+
+    <h2 class="item-title">Chicken Street Taco</h2>
+    <p class="item-desc">Grilled chicken, onions, cilantro, lime, and house sauce.</p>
+
+    <h4 class="section-label">Add extras</h4>
+
+    <div class="option-list" id="extras-options">
+      <label class="option-row">
+        <span>Extra cheese</span>
+        <input type="checkbox" checked>
+        <span class="checkmark"></span>
+      </label>
+      <label class="option-row">
+        <span>Guacamole</span>
+        <input type="checkbox">
+        <span class="checkmark"></span>
+      </label>
+      <label class="option-row">
+        <span>Jalapeños</span>
+        <input type="checkbox">
+        <span class="checkmark"></span>
+      </label>
+    </div>
+
+    <h4 class="section-label">Spice level</h4>
+
+    <div class="option-list" id="spice-options">
+      <label class="option-row">
+        <span>Mild</span>
+        <input type="radio" name="spice" value="mild">
+        <span class="checkmark"></span>
+      </label>
+      <label class="option-row">
+        <span>Medium</span>
+        <input type="radio" name="spice" value="medium" checked>
+        <span class="checkmark"></span>
+      </label>
+      <label class="option-row">
+        <span>Hot 🔥</span>
+        <input type="radio" name="spice" value="hot">
+        <span class="checkmark"></span>
+      </label>
+    </div>
+
+    <h4 class="section-label">Quantity</h4>
+
+    <div class="quantity-row">
+      <button type="button" class="qty-btn" id="qty-minus">−</button>
+      <span class="qty-value" id="qty-value">1</span>
+      <button type="button" class="qty-btn plus" id="qty-plus">+</button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <button type="button" class="cart-btn" id="cart-btn">
+      <span>Add to Cart</span>
+      <span class="cart-price" id="cart-price">Rs. 190</span>
+    </button>
+  </div>
+
+</div>
+
+<script src="js/analytics.js"></script>
+<script src="js/menu-data.js"></script>
+<script src="js/cart-store.js"></script>
+<script src="js/swiftbite-auth.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

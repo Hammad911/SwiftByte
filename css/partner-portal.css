@@ -1,0 +1,154 @@
+/* Restaurant & rider partner portals */
+
+.pp-note {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 14px;
+  line-height: 1.45;
+}
+
+.pp-rest-picker {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  margin-bottom: 16px;
+  font-family: inherit;
+  background: #fff;
+}
+
+.pp-order-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #eee;
+  text-align: left;
+}
+
+.pp-order-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.pp-order-id {
+  font-size: 11px;
+  color: #888;
+  font-weight: 600;
+}
+
+.pp-status {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fff3ef;
+  color: #ff4d2e;
+  white-space: nowrap;
+}
+
+.pp-status.pp-muted {
+  background: #f0f0f2;
+  color: #555;
+}
+
+.pp-lines {
+  font-size: 12px;
+  color: #333;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.pp-block-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.pp-address {
+  font-size: 13px;
+  color: #222;
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+
+.pp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pp-btn {
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.pp-btn-primary {
+  background: #ff4d2e;
+  color: #fff;
+}
+
+.pp-btn-secondary {
+  background: #f0f0f2;
+  color: #222;
+}
+
+.pp-btn-danger {
+  background: #ffe8e8;
+  color: #c62828;
+}
+
+.pp-btn-maps {
+  background: #e8f4ff;
+  color: #1565c0;
+}
+
+.pp-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pp-empty {
+  font-size: 13px;
+  color: #666;
+  padding: 20px;
+  text-align: center;
+  background: #fafafa;
+  border-radius: 14px;
+}
+
+.pp-divider-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 18px 0 10px;
+  color: #333;
+}
+
+.pp-top-links {
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.pp-top-links a {
+  color: #ff4d2e;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.pp-top-links a:hover {
+  text-decoration: underline;
+}
