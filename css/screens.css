@@ -448,16 +448,25 @@ a.sb-primary-btn,
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   text-align: left;
   padding: 14px;
-  border: none;
   border-radius: 14px;
   background: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-  cursor: pointer;
   font-family: inherit;
+  cursor: default;
+}
+.orders-row-main {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  padding: 0;
 }
 .orders-row strong {
   display: block;
@@ -468,6 +477,17 @@ a.sb-primary-btn,
   font-size: 11px;
   color: #666;
   margin-top: 4px;
+}
+.orders-row-rate {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff4d2e;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fff3ef;
+  text-decoration: none;
+  font-family: inherit;
 }
 .orders-row-price {
   font-weight: 700;
@@ -521,4 +541,270 @@ button.sb-header-cart {
   font-size: 10px;
   color: #999;
   margin-top: 2px;
+}
+
+/* Checkout refresh */
+.checkout-approval-callout {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fff8f5 0%, #ffe8df 100%);
+  border: 1px solid rgba(255, 77, 46, 0.2);
+  box-shadow: 0 2px 12px rgba(255, 77, 46, 0.08);
+}
+.checkout-approval-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.checkout-approval-callout strong {
+  display: block;
+  font-size: 13px;
+  color: #222;
+  margin-bottom: 4px;
+}
+.checkout-approval-callout p {
+  font-size: 11px;
+  color: #555;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.checkout-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px 14px 4px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.checkout-card--summary {
+  padding-bottom: 8px;
+}
+.checkout-card-head {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.checkout-card-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.checkout-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 2px;
+  color: #111;
+}
+.checkout-card-hint {
+  font-size: 10px;
+  color: #888;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.sb-primary-btn--checkout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 16px;
+  margin-top: 6px;
+}
+.sb-checkout-btn-main {
+  font-size: 15px;
+  font-weight: 700;
+}
+.sb-checkout-btn-sub {
+  font-size: 10px;
+  font-weight: 500;
+  opacity: 0.92;
+}
+
+.checkout-panel .checkout-heading {
+  display: none;
+}
+
+.track-live {
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  background: #fff;
+  border: 1px solid rgba(255, 77, 46, 0.22);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+.track-live-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.track-live-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #ff4d2e;
+}
+.track-live-time {
+  font-size: 10px;
+  color: #888;
+}
+.track-live-status {
+  font-size: 14px;
+  font-weight: 700;
+  color: #161618;
+  line-height: 1.3;
+}
+.track-live-detail {
+  font-size: 11px;
+  color: #555;
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+.oc-status-strip {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #eee;
+  text-align: left;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+.oc-status-strip .oc-status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff4d2e;
+  background: #fff0eb;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+}
+.oc-status-strip p {
+  font-size: 12px;
+  color: #444;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Dummy live map (tracking — out for delivery) */
+.track-map-wrap {
+  margin-bottom: 16px;
+}
+.track-map-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
+}
+.track-map-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: linear-gradient(90deg, #f4f7fb 0%, #fafafa 100%);
+  font-size: 11px;
+  font-weight: 700;
+  color: #333;
+  letter-spacing: 0.02em;
+}
+.track-map-eta {
+  font-size: 10px;
+  font-weight: 600;
+  color: #ff4d2e;
+  background: #fff0eb;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.track-map-canvas {
+  position: relative;
+  height: 168px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+    linear-gradient(145deg, #c8e6c9 0%, #b3e5fc 42%, #d7ccc8 100%);
+  background-size: 28px 28px, 28px 28px, 100% 100%;
+}
+.track-map-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.track-map-rider {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ff4d2e;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 12px rgba(255, 77, 46, 0.55);
+  z-index: 2;
+  animation: track-rider-move 14s ease-in-out infinite;
+  transform: translate(-50%, -50%);
+}
+.track-map-rider::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 77, 46, 0.45);
+  animation: track-rider-pulse 1.8s ease-out infinite;
+}
+.track-map-wrap.track-map-wrap--delivered .track-map-rider {
+  animation: none;
+  left: 86% !important;
+  top: 31% !important;
+}
+.track-map-wrap.track-map-wrap--delivered .track-map-rider::after {
+  display: none;
+}
+
+@keyframes track-rider-move {
+  0% {
+    left: 12%;
+    top: 74%;
+  }
+  35% {
+    left: 42%;
+    top: 24%;
+  }
+  70% {
+    left: 68%;
+    top: 38%;
+  }
+  100% {
+    left: 86%;
+    top: 31%;
+  }
+}
+
+@keyframes track-rider-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+.track-map-caption {
+  font-size: 11px;
+  color: #555;
+  padding: 10px 14px 12px;
+  margin: 0;
+  line-height: 1.45;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
 }

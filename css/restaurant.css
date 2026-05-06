@@ -49,6 +49,21 @@ body {
   color: #004d40;
 }
 
+.karahi-banner {
+  background: linear-gradient(135deg, #ffe0b2, #ff6f00);
+  color: #3e2723;
+}
+
+.pizza-banner {
+  background: linear-gradient(135deg, #ff8a65, #d84315);
+  color: #fff8f5;
+}
+
+.chai-banner {
+  background: linear-gradient(135deg, #a1887f, #5d4037);
+  color: #fffde7;
+}
+
 /* Content */
 .content {
   padding: 15px;

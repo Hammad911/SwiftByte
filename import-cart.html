@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftBite · Shared basket</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="sb-import-cart-body">
+
+<div class="container sb-stack">
+  <h1 class="sb-screen-title">Shared basket</h1>
+  <p id="import-msg" class="sb-screen-sub">Loading…</p>
+  <p class="sb-muted-link"><a href="dashboard.html">← Home</a></p>
+</div>
+
+<script src="js/cart-store.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const msg = document.getElementById("import-msg");
+  const id = new URLSearchParams(window.location.search).get("id");
+  if (!id || !window.SwiftBiteCart) {
+    if (msg) msg.textContent = "This link is invalid.";
+    return;
+  }
+  const raw = window.localStorage.getItem("swiftbite_cart_share_" + id);
+  if (!raw) {
+    if (msg) msg.textContent = "This basket link is missing (try sharing again from checkout — links stay on this device only in the demo).";
+    return;
+  }
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (e) {
+    if (msg) msg.textContent = "Could not read this basket.";
+    return;
+  }
+  if (!data || !Array.isArray(data.lines) || !data.restaurantId) {
+    if (msg) msg.textContent = "This basket payload is incomplete.";
+    return;
+  }
+  window.SwiftBiteCart.replaceLines(data.lines);
+  try {
+    window.sessionStorage.setItem("swiftbite_pending_group_id", id);
+  } catch (e2) {
+    /* ignore */
+  }
+  if (msg) msg.textContent = "Basket imported. Opening checkout…";
+  window.setTimeout(() => {
+    window.location.href = "cart.html";
+  }, 350);
+});
+</script>
+</body>
+</html>

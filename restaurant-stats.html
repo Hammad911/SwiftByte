@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftBite · Restaurant stats</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/stats-portal.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container sb-stack">
+  <div class="sb-top-bar">
+    <span class="sb-top-brand">SwiftBite</span>
+    <span class="sb-top-tag">Merchant · Stats</span>
+  </div>
+
+  <h1 class="sb-screen-title">Kitchen overview</h1>
+  <p class="sb-screen-sub">Completion, rejects, and revenue for one outlet.</p>
+
+  <label class="st-select-label" for="rs-outlet">Outlet</label>
+  <select id="rs-outlet" class="st-outlet-select" aria-label="Outlet"></select>
+
+  <div id="stats-root"></div>
+
+  <p class="sb-muted-link pp-top-links"><a href="restaurant-portal.html">← Orders</a> · <a href="dashboard.html">Customer app</a></p>
+</div>
+
+<script src="js/analytics.js"></script>
+<script src="js/menu-data.js"></script>
+<script src="js/orders-store.js"></script>
+<script src="js/swiftbite-auth.js"></script>
+<script src="js/app.js"></script>
+<script src="js/stats-portal.js"></script>
+</body>
+</html>

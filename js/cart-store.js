@@ -118,6 +118,26 @@
     notify();
   }
 
+  /**
+   * Replace the entire cart (e.g. group-order import). Lines must share one restaurantId.
+   * @param {CartLine[]} lines
+   */
+  function replaceLines(lines) {
+    const next = Array.isArray(lines)
+      ? lines.map((l) => ({
+          restaurantId: String(l.restaurantId || ""),
+          itemId: String(l.itemId || ""),
+          name: String(l.name || "Item"),
+          unitPrice: Number(l.unitPrice) || 0,
+          quantity: Math.min(99, Math.max(1, Math.floor(Number(l.quantity) || 1))),
+          extrasNote: l.extrasNote ? String(l.extrasNote) : undefined
+        }))
+      : [];
+    const firstRid = next.length ? next[0].restaurantId : "";
+    const normalized = firstRid ? next.filter((l) => l.restaurantId === firstRid && l.itemId) : [];
+    save(normalized);
+  }
+
   /** @param {(lines: CartLine[], totals: ReturnType<typeof getTotals>) => void} fn */
   function subscribe(fn) {
     listeners.add(fn);
@@ -132,6 +152,7 @@
     upsertLine,
     removeLine,
     clear,
+    replaceLines,
     subscribe
   };
 })(window);

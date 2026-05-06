@@ -85,13 +85,157 @@
           image: "assets/7.jfif"
         }
       ]
+    },
+    {
+      id: "karahi-house",
+      name: "Karahi House",
+      bannerClass: "karahi-banner",
+      bannerTitle: "SIZZLING<br>DESI KARAHI",
+      subtitle: "Charcoal smoke, slow-cooked gravies, fresh roti.",
+      cuisine: "Pakistani · BBQ · Karahi",
+      ratingLine: "⭐ Top 9.2",
+      deliveryLine: "🕒 Delivery in 35–45 min",
+      hoursLine: "⏰ 11:30 - 23:30",
+      pickupAddressLine: "Karahi House · F-10 Markaz, Islamabad",
+      deliveryFeePkr: 45,
+      taxPercent: 5,
+      minOrderPkr: 450,
+      etaMins: 40,
+      items: [
+        {
+          id: "chicken-karahi-full",
+          name: "Chicken Karahi (Full)",
+          description: "Classic tomato–ginger karahi, family style.",
+          price: 1890,
+          image: "assets/4.jfif"
+        },
+        {
+          id: "mutton-paye",
+          name: "Mutton Paye (2 pcs)",
+          description: "Slow-simmered trotters, naan on the side.",
+          price: 620,
+          image: "assets/1.png"
+        },
+        {
+          id: "seekh-plate",
+          name: "Seekh Kebab Plate",
+          description: "Four skewers, chutney, onions, lemon.",
+          price: 540,
+          image: "assets/2.png"
+        }
+      ]
+    },
+    {
+      id: "slice-street-pizza",
+      name: "Slice Street Pizza",
+      bannerClass: "pizza-banner",
+      bannerTitle: "HOT<br>SLICES",
+      subtitle: "Thin crust, wood-fired flavour, fast slices.",
+      cuisine: "Italian · Pizza · Comfort",
+      ratingLine: "⭐ Very good 8.7",
+      deliveryLine: "🕒 Delivery in 25–35 min",
+      hoursLine: "⏰ 12:00 - 02:00",
+      pickupAddressLine: "Slice Street · Giga Mall, DHA II, Islamabad",
+      deliveryFeePkr: 59,
+      taxPercent: 5,
+      minOrderPkr: 400,
+      etaMins: 30,
+      items: [
+        {
+          id: "margherita-large",
+          name: "Margherita (Large)",
+          description: "San Marzano sauce, mozzarella, basil, olive oil.",
+          price: 1190,
+          image: "assets/5.jfif"
+        },
+        {
+          id: "pepperoni-loaded",
+          name: "Pepperoni Feast",
+          description: "Double pepperoni, mozzarella blend, chili honey drizzle.",
+          price: 1490,
+          image: "assets/8.jfif"
+        },
+        {
+          id: "veg-supreme",
+          name: "Veg Supreme",
+          description: "Bell peppers, mushrooms, olives, sweet corn.",
+          price: 1090,
+          image: "assets/7.jfif"
+        }
+      ]
+    },
+    {
+      id: "chai-lab",
+      name: "Chai Lab",
+      bannerClass: "chai-banner",
+      bannerTitle: "BREWED<br>CHAIS",
+      subtitle: "Karak chai, paratha rolls, and midnight snacks.",
+      cuisine: "Cafe · Chai · Snacks",
+      ratingLine: "⭐ Loved 9.0",
+      deliveryLine: "🕒 Delivery in 20–30 min",
+      hoursLine: "⏰ 07:00 - 02:00",
+      pickupAddressLine: "Chai Lab · I-8 Markaz, Islamabad",
+      deliveryFeePkr: 35,
+      taxPercent: 5,
+      minOrderPkr: 250,
+      etaMins: 25,
+      items: [
+        {
+          id: "karak-doodh-patti",
+          name: "Karak Doodh Patti",
+          description: "Strong kettle chai, large cup.",
+          price: 180,
+          image: "assets/1.png"
+        },
+        {
+          id: "chicken-paratha-roll",
+          name: "Chicken Paratha Roll",
+          description: "Malai boti, mint chutney, pickled onions.",
+          price: 320,
+          image: "assets/2.png"
+        },
+        {
+          id: "nutella-paratha",
+          name: "Nutella Paratha",
+          description: "Crisp paratha, Nutella, crushed nuts.",
+          price: 260,
+          image: "assets/4.jfif"
+        }
+      ]
     }
   ];
+
+  function extractRating(line) {
+    const m = String(line || "").match(/(\d+(?:\.\d+)?)\s*$/);
+    return m ? Number(m[1]) : 8.5;
+  }
+
+  /** @param {typeof RESTAURANTS[0]} base */
+  function enrich(base) {
+    /** @type {Record<string, string[]>} */
+    const dietById = {
+      saltish: ["halal", "vegan-options", "healthy", "gluten-conscious"],
+      "taco-cubano": ["halal"],
+      "karahi-house": ["halal"],
+      "slice-street-pizza": ["halal", "vegetarian-options"],
+      "chai-lab": ["halal", "vegetarian-options"]
+    };
+    return {
+      ...base,
+      ratingValue: typeof base.ratingValue === "number" ? base.ratingValue : extractRating(base.ratingLine),
+      dietTags: dietById[base.id] || ["halal"]
+    };
+  }
+
+  function allRestaurants() {
+    return RESTAURANTS.map((r) => enrich(r));
+  }
 
   /** @param {string} id */
   function getRestaurant(id) {
     const key = (id || "").trim();
-    return RESTAURANTS.find((r) => r.id === key) || RESTAURANTS[0];
+    const base = RESTAURANTS.find((r) => r.id === key) || RESTAURANTS[0];
+    return enrich(base);
   }
 
   /**
@@ -106,6 +250,7 @@
 
   global.SwiftBiteMenu = {
     RESTAURANTS,
+    allRestaurants,
     getRestaurant,
     getMenuItem
   };

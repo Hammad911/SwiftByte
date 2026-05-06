@@ -15,6 +15,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const file = currentPageFile();
 
+  if (window.SwiftBiteOrders && window.SwiftBiteOrders.STORAGE_KEY) {
+    window.addEventListener("storage", (e) => {
+      if (e.key === window.SwiftBiteOrders.STORAGE_KEY && e.newValue != null) {
+        window.dispatchEvent(new CustomEvent("swiftbite_orders_changed"));
+      }
+    });
+  }
+
   function readSelectedAuthRole() {
     const el = document.querySelector('input[name="sb-login-role"]:checked');
     const raw = el && el.value ? String(el.value) : "customer";
@@ -211,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (!(file === "index.html" && isLoginPage())) {
-    initScreenBackButton();
+  initScreenBackButton();
   }
 
   /* ── LOGIN (index.html) ───────────────────────────────────── */
@@ -415,6 +423,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  const profileLoyaltyEl = document.getElementById("profile-loyalty-line");
+  if (profileLoyaltyEl && window.SwiftBiteLoyalty && file === "profile.html") {
+    function paintProfileLoyalty() {
+      const b = window.SwiftBiteLoyalty.getBalance();
+      profileLoyaltyEl.style.display = "inline-block";
+      profileLoyaltyEl.textContent = `${b} Panda Points — use at checkout`;
+    }
+    paintProfileLoyalty();
+    window.addEventListener("swiftbite_loyalty_changed", paintProfileLoyalty);
+  }
+
   /* ── SEARCH ───────────────────────────────────────────────── */
 
   function renderSearchPage() {
@@ -423,27 +442,81 @@ document.addEventListener("DOMContentLoaded", () => {
     const input = document.getElementById("search-input");
     if (!root || !input) return;
 
-    function paint(term) {
-      const q = (term || "").trim().toLowerCase();
+    const sfMin = document.getElementById("sf-min-rating");
+    const sfEta = document.getElementById("sf-max-eta");
+    const sfVegan = document.getElementById("sf-vegan");
+    const sfApply = document.getElementById("sf-apply");
+
+    function listRestaurants() {
+      return typeof window.SwiftBiteMenu.allRestaurants === "function"
+        ? window.SwiftBiteMenu.allRestaurants()
+        : window.SwiftBiteMenu.RESTAURANTS;
+    }
+
+    function readUrlIntoFilters() {
+      const p = new URLSearchParams(window.location.search);
+      const c = p.get("cuisine") || "";
+      const d = p.get("diet") || "";
+      if (c && input && !input.value) input.value = c;
+      if (sfMin && p.get("minRating")) sfMin.value = p.get("minRating") || "0";
+      if (sfEta && p.get("maxEta")) sfEta.value = p.get("maxEta") || "999";
+      if (sfVegan && d.includes("vegan")) sfVegan.checked = true;
+    }
+
+    readUrlIntoFilters();
+
+    function activeFilters() {
+      const minRating = sfMin ? Number(sfMin.value) || 0 : 0;
+      const maxEta = sfEta ? Number(sfEta.value) || 999 : 999;
+      const veganOnly = sfVegan ? sfVegan.checked : false;
+      return { minRating, maxEta, veganOnly };
+    }
+
+    function paint() {
+      const q = (input.value || "").trim().toLowerCase();
+      const { minRating, maxEta, veganOnly } = activeFilters();
       root.innerHTML = "";
-      window.SwiftBiteMenu.RESTAURANTS.filter((r) => {
-        if (!q) return true;
+      listRestaurants().forEach((r) => {
         const blob = `${r.name} ${r.subtitle} ${r.cuisine || ""}`.toLowerCase();
-        return blob.includes(q);
-      }).forEach((r) => {
+        if (q && !blob.includes(q)) return;
+        if (minRating > 0 && (r.ratingValue || 0) < minRating) return;
+        if (maxEta < 999 && r.etaMins > maxEta) return;
+        if (veganOnly && !(r.dietTags || []).includes("vegan-options")) return;
+
         const row = document.createElement("button");
         row.type = "button";
         row.className = "search-row";
-        row.innerHTML = `<strong>${escapeHtml(r.name)}</strong><span>${escapeHtml(r.subtitle)}</span><span class="search-cuisine">${escapeHtml(r.cuisine)}</span>`;
+        row.innerHTML = `<strong>${escapeHtml(r.name)}</strong><span>${escapeHtml(r.subtitle)}</span><span class="search-cuisine">${escapeHtml(r.cuisine)} · ⭐ ${r.ratingValue} · ~${r.etaMins} min</span>`;
         row.addEventListener("click", () => {
           window.location.href = `restaurant.html?r=${encodeURIComponent(r.id)}`;
         });
         root.appendChild(row);
       });
+      if (!root.childNodes.length) {
+        root.innerHTML = "<p class=\"orders-empty\">No restaurants match. Loosen filters or clear search.</p>";
+      }
     }
 
-    paint("");
-    input.addEventListener("input", () => paint(input.value));
+    if (sfApply) {
+      sfApply.addEventListener("click", () => {
+        const url = new URL(window.location.href);
+        const { minRating, maxEta, veganOnly } = activeFilters();
+        if (minRating > 0) url.searchParams.set("minRating", String(minRating));
+        else url.searchParams.delete("minRating");
+        if (maxEta < 999) url.searchParams.set("maxEta", String(maxEta));
+        else url.searchParams.delete("maxEta");
+        if (veganOnly) url.searchParams.set("diet", "vegan-options");
+        else url.searchParams.delete("diet");
+        window.history.replaceState({}, "", url.toString());
+        paint();
+      });
+    }
+
+    paint();
+    input.addEventListener("input", () => paint());
+    [sfMin, sfEta, sfVegan].forEach((el) => {
+      if (el) el.addEventListener("change", () => paint());
+    });
   }
 
   function escapeHtml(s) {
@@ -452,6 +525,91 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  function initNotificationBell() {
+    const btn = document.getElementById("sb-notify-btn");
+    if (!btn || !window.SwiftBiteNotify) return;
+
+    const badge = document.getElementById("sb-notify-badge");
+
+    function syncBadge() {
+      const n = window.SwiftBiteNotify.unreadCount();
+      if (badge) {
+        if (n === 0) {
+          badge.hidden = true;
+        } else {
+          badge.hidden = false;
+          badge.textContent = n > 9 ? "9+" : String(n);
+        }
+      }
+    }
+
+    syncBadge();
+    window.addEventListener("swiftbite_notifications_changed", syncBadge);
+
+    let drawerEl = null;
+
+    function closeDrawer() {
+      if (drawerEl) {
+        drawerEl.remove();
+        drawerEl = null;
+      }
+    }
+
+    function fillList(mount) {
+      if (!mount) return;
+      mount.innerHTML = "";
+      const list = window.SwiftBiteNotify.listAll();
+      if (!list.length) {
+        mount.innerHTML = "<p class=\"sb-screen-sub\" style=\"margin:0;\">No notifications yet.</p>";
+        return;
+      }
+      list.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "sb-notify-item" + (item.read ? "" : " unread");
+        div.innerHTML = `<strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.body)}</span>`;
+        div.addEventListener("click", () => {
+          window.SwiftBiteNotify.markRead(item.id);
+          syncBadge();
+          fillList(mount);
+        });
+        mount.appendChild(div);
+      });
+    }
+
+    function openDrawer() {
+      if (drawerEl) return;
+      drawerEl = document.createElement("div");
+      drawerEl.className = "sb-notify-drawer";
+      drawerEl.innerHTML = `
+        <div class="sb-notify-panel">
+          <h2>Notifications</h2>
+          <div class="sb-notify-list-mount"></div>
+          <button type="button" class="sb-notify-close sb-notify-close--ghost">Close</button>
+          <button type="button" class="sb-notify-close sb-notify-markall">Mark all read</button>
+        </div>
+      `;
+      const mount = drawerEl.querySelector(".sb-notify-list-mount");
+      fillList(mount || null);
+
+      drawerEl.addEventListener("click", (e) => {
+        if (e.target === drawerEl) closeDrawer();
+      });
+      drawerEl.querySelector(".sb-notify-close--ghost").addEventListener("click", closeDrawer);
+      drawerEl.querySelector(".sb-notify-markall").addEventListener("click", () => {
+        window.SwiftBiteNotify.markAllRead();
+        syncBadge();
+        fillList(mount || null);
+      });
+      const panel = drawerEl.querySelector(".sb-notify-panel");
+      if (panel) panel.addEventListener("click", (e) => e.stopPropagation());
+      document.body.appendChild(drawerEl);
+    }
+
+    btn.addEventListener("click", () => {
+      openDrawer();
+    });
   }
 
   function formatRs(amount) {
@@ -574,9 +732,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const notesEl = document.getElementById("checkout-notes");
 
     const feeSub = document.getElementById("fee-subtotal");
+    const feeDiscRow = document.getElementById("fee-discount-row");
+    const feeDisc = document.getElementById("fee-discount");
+    const feeLoyaltyRow = document.getElementById("fee-loyalty-row");
+    const feeLoyalty = document.getElementById("fee-loyalty");
     const feeDel = document.getElementById("fee-delivery");
     const feeTax = document.getElementById("fee-tax");
     const feeTot = document.getElementById("fee-total");
+
+    const voucherInp = document.getElementById("checkout-voucher");
+    const voucherBtn = document.getElementById("voucher-apply-btn");
+    const voucherMsg = document.getElementById("voucher-msg");
+    const loyaltyBal = document.getElementById("loyalty-balance-line");
+    const loyaltyInp = document.getElementById("checkout-loyalty-points");
+    const loyaltyBtn = document.getElementById("loyalty-apply-btn");
+    const scheduleEl = document.getElementById("checkout-schedule");
+    const groupShareBtn = document.getElementById("group-share-btn");
+    const groupShareUrl = document.getElementById("group-share-url");
+
+    /** @type {{ code: string, discount: number }} */
+    let voucherApplied = { code: "", discount: 0 };
+    /** @type {{ requested: number, points: number, pkrOff: number }} */
+    let loyaltyApplied = { requested: 0, points: 0, pkrOff: 0 };
+    let lastGroupShareId = "";
 
     const saved = window.SwiftBiteDelivery.get();
     if (addrEl) addrEl.value = saved.addressLine || "";
@@ -599,18 +777,70 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    function computeTotals(lines, subtotal) {
+    function syncLoyaltyLine() {
+      if (loyaltyBal && window.SwiftBiteLoyalty) {
+        loyaltyBal.textContent = `Balance: ${window.SwiftBiteLoyalty.getBalance()} points (≈ Rs. 1 per point at checkout)`;
+      }
+    }
+    syncLoyaltyLine();
+    window.addEventListener("swiftbite_loyalty_changed", syncLoyaltyLine);
+
+    /**
+     * @returns {{ r: ReturnType<typeof window.SwiftBiteMenu.getRestaurant>, delivery: number, voucherDiscount: number, loyaltyPkr: number, loyaltyPoints: number, tax: number, total: number, netAfterDiscount: number }}
+     */
+    function breakdown(lines, subtotal) {
       const rid = window.SwiftBiteCart.getActiveRestaurantId();
       const r = window.SwiftBiteMenu.getRestaurant(rid || "taco-cubano");
       const delivery = lines.length ? r.deliveryFeePkr : 0;
-      const tax = lines.length ? Math.round(subtotal * (r.taxPercent / 100)) : 0;
-      const total = subtotal + delivery + tax;
-      return { r, delivery, tax, total };
+
+      let voucherDiscount = 0;
+      if (voucherApplied.code && window.SwiftBiteVouchers) {
+        const v = window.SwiftBiteVouchers.validate(voucherApplied.code, subtotal, r.id);
+        if (v.ok) voucherDiscount = v.discount;
+        else {
+          voucherApplied = { code: "", discount: 0 };
+          if (voucherMsg) voucherMsg.textContent = v.message || "Promo no longer applies.";
+        }
+      }
+
+      const afterV = Math.max(0, subtotal - voucherDiscount);
+      let loyaltyPkr = 0;
+      let loyaltyPoints = 0;
+      if (loyaltyApplied.requested > 0 && window.SwiftBiteLoyalty) {
+        const lr = window.SwiftBiteLoyalty.computeRedeemValue(loyaltyApplied.requested, afterV);
+        loyaltyPkr = lr.pkrOff;
+        loyaltyPoints = lr.points;
+      }
+
+      const taxableBase = Math.max(0, subtotal - voucherDiscount - loyaltyPkr);
+      const tax = lines.length ? Math.round(taxableBase * (r.taxPercent / 100)) : 0;
+      const total = taxableBase + delivery + tax;
+
+      return { r, delivery, voucherDiscount, loyaltyPkr, loyaltyPoints, tax, total, netAfterDiscount: taxableBase };
     }
 
     function paintFees(lines, subtotal) {
-      const { r, delivery, tax, total } = computeTotals(lines, subtotal);
+      const { r, delivery, voucherDiscount, loyaltyPkr, loyaltyPoints, tax, total } = breakdown(lines, subtotal);
+
       if (feeSub) feeSub.textContent = formatRs(subtotal);
+      if (feeDiscRow && feeDisc) {
+        if (voucherDiscount > 0) {
+          feeDiscRow.style.display = "flex";
+          feeDisc.textContent = `− ${formatRs(voucherDiscount)}`;
+        } else {
+          feeDiscRow.style.display = "none";
+        }
+      }
+      if (feeLoyaltyRow && feeLoyalty) {
+        if (loyaltyPkr > 0) {
+          feeLoyaltyRow.style.display = "flex";
+          feeLoyalty.textContent = `− ${formatRs(loyaltyPkr)} (${loyaltyPoints} pts)`;
+        } else {
+          feeLoyaltyRow.style.display = "none";
+        }
+      }
+      loyaltyApplied = { ...loyaltyApplied, points: loyaltyPoints, pkrOff: loyaltyPkr };
+
       if (feeDel) feeDel.textContent = formatRs(delivery);
       if (feeTax) feeTax.textContent = `${formatRs(tax)} (${r.taxPercent}% tax)`;
       if (feeTot) feeTot.textContent = formatRs(total);
@@ -621,7 +851,10 @@ document.addEventListener("DOMContentLoaded", () => {
           chip.textContent = "";
         } else {
           chip.style.display = "block";
-          chip.textContent = `Ordering from · ${r.name}`;
+          const gid = sessionStorage.getItem("swiftbite_pending_group_id");
+          chip.textContent = gid
+            ? `Ordering from · ${r.name} · Group #${gid}`
+            : `Ordering from · ${r.name}`;
         }
       }
 
@@ -636,7 +869,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (checkoutPanel) checkoutPanel.style.display = lines.length ? "block" : "none";
 
-      return { r, delivery, tax, total };
+      return { r, delivery, voucherDiscount, loyaltyPkr, loyaltyPoints, tax, total };
     }
 
     function paint() {
@@ -696,6 +929,67 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    if (voucherBtn && voucherInp) {
+      voucherBtn.addEventListener("click", () => {
+        const code = voucherInp.value.trim();
+        if (!code) {
+          voucherApplied = { code: "", discount: 0 };
+          if (voucherMsg) voucherMsg.textContent = "";
+          paint();
+          return;
+        }
+        const lines = window.SwiftBiteCart.getLines();
+        const { subtotal } = window.SwiftBiteCart.getTotals();
+        const rid = window.SwiftBiteCart.getActiveRestaurantId() || "taco-cubano";
+        const v = window.SwiftBiteVouchers.validate(code, subtotal, rid);
+        if (voucherMsg) voucherMsg.textContent = v.message || "";
+        if (v.ok) voucherApplied = { code, discount: v.discount };
+        else voucherApplied = { code: "", discount: 0 };
+        paint();
+      });
+    }
+
+    if (loyaltyBtn && loyaltyInp) {
+      loyaltyBtn.addEventListener("click", () => {
+        const req = Math.max(0, Math.floor(Number(loyaltyInp.value) || 0));
+        loyaltyApplied = { requested: req, points: 0, pkrOff: 0 };
+        if (voucherMsg && !voucherInp.value.trim()) voucherMsg.textContent = "";
+        paint();
+      });
+    }
+
+    if (groupShareBtn && groupShareUrl && window.SwiftBiteCart) {
+      groupShareBtn.addEventListener("click", () => {
+        const lines = window.SwiftBiteCart.getLines();
+        const rid = window.SwiftBiteCart.getActiveRestaurantId();
+        if (!lines.length || !rid) {
+          showToast("Add items to share your basket.");
+          return;
+        }
+        const snapshot = JSON.parse(JSON.stringify(lines));
+        const gid = `grp-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+        lastGroupShareId = gid;
+        try {
+          localStorage.setItem(
+            `swiftbite_cart_share_${gid}`,
+            JSON.stringify({ restaurantId: rid, lines: snapshot, t: Date.now() })
+          );
+        } catch (err) {
+          showToast("Could not save share link.");
+          return;
+        }
+        const rel = `import-cart.html?id=${encodeURIComponent(gid)}`;
+        const abs = new URL(rel, window.location.href).href;
+        groupShareUrl.value = abs;
+        try {
+          navigator.clipboard.writeText(abs);
+          showToast("Share link copied! Send it to friends.");
+        } catch {
+          showToast("Link ready — copy from the box below.");
+        }
+      });
+    }
+
     paint();
     window.SwiftBiteCart.subscribe(() => paint());
 
@@ -723,15 +1017,28 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        const { r, delivery, tax, total } = computeTotals(lines, subtotal);
+        const { r, delivery, voucherDiscount, loyaltyPkr, loyaltyPoints, tax, total } = breakdown(lines, subtotal);
         if (subtotal < r.minOrderPkr) {
           showToast(`Minimum order for ${r.name} is ${formatRs(r.minOrderPkr)}.`);
           return;
         }
 
-        const snapshot = JSON.parse(JSON.stringify(lines));
+        let scheduledFor = "";
+        if (scheduleEl && scheduleEl.value) {
+          const d = new Date(scheduleEl.value);
+          if (!Number.isNaN(d.getTime())) scheduledFor = d.toISOString();
+        }
 
-        const order = window.SwiftBiteOrders.placeOrder({
+        const promoSlice = voucherDiscount + loyaltyPkr;
+        if (loyaltyPoints > 0 && window.SwiftBiteLoyalty) {
+          window.SwiftBiteLoyalty.applyRedeem(loyaltyPoints);
+        }
+
+        const snapshot = JSON.parse(JSON.stringify(lines));
+        const pendingGid = sessionStorage.getItem("swiftbite_pending_group_id") || lastGroupShareId || undefined;
+
+        /** @type {Parameters<typeof window.SwiftBiteOrders.placeOrder>[0]} */
+        const payload = {
           restaurantId: r.id,
           restaurantName: r.name,
           lines: snapshot,
@@ -744,7 +1051,30 @@ document.addEventListener("DOMContentLoaded", () => {
           tax,
           total,
           etaMinutes: r.etaMins
-        });
+        };
+        if (voucherApplied.code && voucherDiscount > 0) {
+          payload.voucherCode = voucherApplied.code;
+          payload.discountAmount = promoSlice;
+        } else if (promoSlice > 0) {
+          payload.discountAmount = promoSlice;
+        }
+        if (scheduledFor) payload.scheduledFor = scheduledFor;
+        if (loyaltyPoints > 0) {
+          payload.loyaltyPointsRedeemed = loyaltyPoints;
+          payload.loyaltyDiscountPkr = loyaltyPkr;
+        }
+        if (pendingGid) payload.groupOrderId = pendingGid;
+
+        const order = window.SwiftBiteOrders.placeOrder(payload);
+
+        sessionStorage.removeItem("swiftbite_pending_group_id");
+        voucherApplied = { code: "", discount: 0 };
+        loyaltyApplied = { requested: 0, points: 0, pkrOff: 0 };
+        lastGroupShareId = "";
+        if (voucherInp) voucherInp.value = "";
+        if (loyaltyInp) loyaltyInp.value = "0";
+        if (voucherMsg) voucherMsg.textContent = "";
+        if (scheduleEl) scheduleEl.value = "";
 
         window.SwiftBiteCart.clear();
         syncCartBadge();
@@ -962,9 +1292,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const pages = ["dashboard.html", "search.html", "search.html", null, "profile.html"];
       const target = pages[index];
-      if (index === 1 && window.SwiftBiteAnalytics) {
+        if (index === 1 && window.SwiftBiteAnalytics) {
         window.SwiftBiteAnalytics.track("nav_restaurants_tab");
-      }
+        }
       if (target) {
         window.location.href = target;
       } else {
@@ -997,6 +1327,28 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         window.location.href = `restaurant.html?r=${encodeURIComponent(id)}`;
       }
+    });
+  });
+
+  document.querySelectorAll(".cat-chip[data-cuisine]").forEach((chip) => {
+    chip.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const c = chip.getAttribute("data-cuisine") || "";
+      window.location.href = `search.html?cuisine=${encodeURIComponent(c)}`;
+    });
+  });
+  document.querySelectorAll(".cat-chip[data-filter]").forEach((chip) => {
+    chip.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const f = chip.getAttribute("data-filter") || "";
+      window.location.href = `search.html?diet=${encodeURIComponent(f)}`;
+    });
+  });
+  document.querySelectorAll("[data-go-search]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      window.location.href = "search.html";
     });
   });
 
@@ -1056,97 +1408,209 @@ document.addEventListener("DOMContentLoaded", () => {
     const addr = document.getElementById("oc-address");
     const totalEl = document.getElementById("oc-total");
     const track = document.getElementById("oc-tracking");
+    const strip = document.getElementById("oc-status-strip");
     if (!title) return;
     if (!order) {
       title.textContent = "We couldn't find that order";
       if (meta) meta.textContent = "Open Order history from your profile or start a new basket.";
+      if (strip) strip.style.display = "none";
       if (track) track.style.display = "none";
       return;
     }
-    title.textContent = "Order confirmed!";
-    if (meta) {
-      meta.textContent = `${order.restaurantName} · ETA ~${order.etaMinutes} min · ${order.id}`;
+
+    function applyOrder(o) {
+      const declined = o.status === "declined";
+      const cancelled = o.status === "cancelled_by_customer";
+      title.textContent = declined
+        ? "Restaurant declined this order"
+        : cancelled
+          ? "Order cancelled"
+          : "Order sent!";
+      if (meta) {
+        meta.textContent = `${o.restaurantName} · Ref ${o.id} · ETA ~${o.etaMinutes} min after approval`;
+      }
+      if (addr) {
+        const bits = [o.addressLine, o.flatOrBlock, o.phone].filter(Boolean);
+        addr.textContent = bits.join(" · ");
+      }
+      if (totalEl) totalEl.textContent = formatRs(o.total);
+      if (strip && window.SwiftBiteOrders) {
+        strip.style.display = "block";
+        const lab = window.SwiftBiteOrders.statusLabel(o.status);
+        const det = window.SwiftBiteOrders.customerStatusDetail(o.status);
+        strip.innerHTML = `<span class="oc-status-badge">${escapeHtml(lab)}</span><p>${escapeHtml(det || lab)}</p>`;
+      }
+      if (track) {
+        track.style.display = "inline-flex";
+        track.href = `tracking.html?id=${encodeURIComponent(o.id)}`;
+      }
     }
-    if (addr) {
-      const bits = [order.addressLine, order.flatOrBlock, order.phone].filter(Boolean);
-      addr.textContent = bits.join(" · ");
-    }
-    if (totalEl) totalEl.textContent = formatRs(order.total);
-    if (track) {
-      track.style.display = "inline-flex";
-      track.href = `tracking.html?id=${encodeURIComponent(order.id)}`;
-    }
+
+    let lastKnown = order.status;
+    applyOrder(order);
+
+    window.addEventListener("swiftbite_orders_changed", () => {
+      const fresh = id ? window.SwiftBiteOrders.getOrder(id) : null;
+      if (!fresh) return;
+      if (fresh.status !== lastKnown) {
+        const msg = window.SwiftBiteOrders.customerStatusDetail(fresh.status);
+        if (msg) showToast(msg);
+        lastKnown = fresh.status;
+      }
+      applyOrder(fresh);
+    });
   }
 
   function renderTrackingPage() {
     if (file !== "tracking.html" || !window.SwiftBiteOrders) return;
     const id = qs("id");
-    const order = id ? window.SwiftBiteOrders.getOrder(id) : null;
     const root = document.getElementById("track-root");
     const title = document.getElementById("track-title");
+    const liveBox = document.getElementById("track-live");
+    const liveStatusEl = document.getElementById("track-live-status");
+    const liveDetailEl = document.getElementById("track-live-detail");
+    const liveTimeEl = document.getElementById("track-live-time");
     if (!root || !title) return;
-    if (!order) {
-      title.textContent = "Order not found";
-      root.innerHTML = "<p class=\"sb-screen-sub\">Check Order history or return home.</p>";
-      return;
-    }
-    title.textContent = order.restaurantName;
 
-    if (order.status === "declined") {
-      root.innerHTML =
-        '<p class="sb-screen-sub">This order was declined by the restaurant. Start a new basket if you still want delivery.</p>';
-      const sum = document.getElementById("track-summary");
-      if (sum) sum.textContent = `${formatRs(order.total)} · ${order.id} · Declined`;
-      return;
-    }
+    let lastKnownStatus = /** @type {string | null} */ (null);
 
-    /** @type {Record<string, number>} */
-    const phaseByStatus = {
-      pending_restaurant: 0,
-      preparing: 1,
-      ready_for_pickup: 2,
-      picked_up: 2,
-      delivered: 3,
-      placed: 0
-    };
-    let phase = phaseByStatus[order.status];
-    if (typeof phase !== "number") phase = 0;
+    function paint() {
+      const order = id ? window.SwiftBiteOrders.getOrder(id) : null;
+      if (!order) {
+        title.textContent = "Order not found";
+        root.innerHTML = "<p class=\"sb-screen-sub\">Check Order history or return home.</p>";
+        if (liveBox) liveBox.style.display = "none";
+        const mapWrapMissing = document.getElementById("track-map-wrap");
+        if (mapWrapMissing) mapWrapMissing.style.display = "none";
+        return;
+      }
 
-    const step0Desc =
-      order.status === "pending_restaurant" || order.status === "placed"
-        ? "Waiting for the restaurant to accept"
-        : "Restaurant confirmed your order";
+      if (lastKnownStatus !== null && order.status !== lastKnownStatus) {
+        const msg = window.SwiftBiteOrders.customerStatusDetail(order.status);
+        if (msg) showToast(msg);
+      }
+      lastKnownStatus = order.status;
 
-    const step2Desc =
-      order.status === "picked_up"
-        ? "Rider is heading to your address"
-        : order.status === "ready_for_pickup"
-          ? "Rider will collect from the restaurant"
-          : "Rider will head your way once food is ready";
+      title.textContent = order.restaurantName;
 
-    const steps = [
-      { label: "Order placed", desc: step0Desc },
-      { label: "Preparing", desc: "Kitchen is packing your food" },
-      { label: "On the way", desc: step2Desc },
-      { label: "Delivered", desc: "Enjoy your meal!" }
-    ];
-
-    root.innerHTML = steps
-      .map((s, i) => {
-        let cls = "track-step";
-        if (order.status === "delivered") cls += " done";
-        else {
-          if (i < phase) cls += " done";
-          if (i === phase) cls += " active";
+      if (liveBox && liveStatusEl && liveDetailEl) {
+        liveBox.style.display = "block";
+        liveStatusEl.textContent = window.SwiftBiteOrders.statusLabel(order.status);
+        liveDetailEl.textContent =
+          window.SwiftBiteOrders.customerStatusDetail(order.status) || "We’ll keep this page in sync.";
+        if (liveTimeEl) {
+          const u = typeof order.statusUpdatedAt === "number" ? order.statusUpdatedAt : order.createdAt;
+          liveTimeEl.textContent = `Updated ${new Date(u).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}`;
         }
-        return `<div class="${cls}"><div class="track-dot"></div><div><strong>${escapeHtml(s.label)}</strong><span>${escapeHtml(s.desc)}</span></div></div>`;
-      })
-      .join("");
+      }
 
-    const sum = document.getElementById("track-summary");
-    if (sum) {
-      sum.textContent = `${formatRs(order.total)} · ${order.id}`;
+      const mapWrap = document.getElementById("track-map-wrap");
+      const mapCaption = document.getElementById("track-map-caption");
+      const mapEta = document.getElementById("track-map-eta");
+      const mapTitle = document.getElementById("track-map-title");
+      if (mapWrap && mapCaption && mapEta && mapTitle) {
+        const showMap = order.status === "picked_up" || order.status === "delivered";
+        if (!showMap) {
+          mapWrap.style.display = "none";
+          mapWrap.classList.remove("track-map-wrap--delivered");
+        } else {
+          mapWrap.style.display = "block";
+          const isDone = order.status === "delivered";
+          mapWrap.classList.toggle("track-map-wrap--delivered", isDone);
+          mapTitle.textContent = isDone ? "Delivery complete" : "Live route (demo)";
+          const etaMins = typeof order.etaMinutes === "number" ? order.etaMinutes : 25;
+          mapEta.textContent = isDone ? "Done" : `ETA ~${Math.max(6, Math.round(etaMins * 0.4))} min`;
+          const bits = [order.addressLine, order.flatOrBlock].filter(Boolean);
+          const shortAddr = bits.length ? bits.join(", ") : "your pin";
+          if (isDone) {
+            mapCaption.textContent =
+              "Your rider dropped off the order at " + shortAddr + ". We hope you enjoy it.";
+          } else {
+            mapCaption.textContent =
+              "Rider picked up from " +
+              order.restaurantName +
+              " and is heading to " +
+              shortAddr +
+              ". Map is illustrative only.";
+          }
+        }
+      }
+
+      if (order.status === "declined") {
+        if (mapWrap) {
+          mapWrap.style.display = "none";
+          mapWrap.classList.remove("track-map-wrap--delivered");
+        }
+        root.innerHTML =
+          '<p class="sb-screen-sub">This order was declined by the restaurant. Start a new basket if you still want delivery.</p>';
+        const sum = document.getElementById("track-summary");
+        if (sum) sum.textContent = `${formatRs(order.total)} · ${order.id} · Declined`;
+        return;
+      }
+
+      if (order.status === "cancelled_by_customer") {
+        if (mapWrap) {
+          mapWrap.style.display = "none";
+          mapWrap.classList.remove("track-map-wrap--delivered");
+        }
+        root.innerHTML =
+          '<p class="sb-screen-sub">You cancelled this order before it was prepared.</p>';
+        const sum = document.getElementById("track-summary");
+        if (sum) sum.textContent = `${formatRs(order.total)} · ${order.id} · Cancelled`;
+        return;
+      }
+
+      /** @type {Record<string, number>} */
+      const phaseByStatus = {
+        pending_restaurant: 0,
+        preparing: 1,
+        ready_for_pickup: 2,
+        picked_up: 2,
+        delivered: 3,
+        placed: 0
+      };
+      let phase = phaseByStatus[order.status];
+      if (typeof phase !== "number") phase = 0;
+
+      const step0Desc =
+        order.status === "pending_restaurant" || order.status === "placed"
+          ? "Waiting for the restaurant manager to approve"
+          : "Restaurant accepted — kitchen is on it";
+
+      const step2Desc =
+        order.status === "picked_up"
+          ? "Rider is heading to your address"
+          : order.status === "ready_for_pickup"
+            ? "Rider will collect from the restaurant"
+            : "Rider will head your way once food is ready";
+
+      const steps = [
+        { label: "Sent to restaurant", desc: step0Desc },
+        { label: "Preparing", desc: "Kitchen is packing your food" },
+        { label: "On the way", desc: step2Desc },
+        { label: "Delivered", desc: "Enjoy your meal!" }
+      ];
+
+      root.innerHTML = steps
+        .map((s, i) => {
+          let cls = "track-step";
+          if (order.status === "delivered") cls += " done";
+          else {
+            if (i < phase) cls += " done";
+            if (i === phase) cls += " active";
+          }
+          return `<div class="${cls}"><div class="track-dot"></div><div><strong>${escapeHtml(s.label)}</strong><span>${escapeHtml(s.desc)}</span></div></div>`;
+        })
+        .join("");
+
+      const sum = document.getElementById("track-summary");
+      if (sum) {
+        sum.textContent = `${formatRs(order.total)} · ${order.id}`;
+      }
     }
+
+    paint();
+    window.addEventListener("swiftbite_orders_changed", paint);
   }
 
   function renderOrdersHistoryPage() {
@@ -1160,32 +1624,96 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     root.innerHTML = "";
     orders.forEach((o) => {
-      const row = document.createElement("button");
-      row.type = "button";
-      row.className = "orders-row";
+      const wrap = document.createElement("div");
+      wrap.className = "orders-row";
+
+      const main = document.createElement("button");
+      main.type = "button";
+      main.className = "orders-row-main";
       const when = new Date(o.createdAt).toLocaleString(undefined, {
         month: "short",
         day: "numeric",
         hour: "2-digit",
         minute: "2-digit"
       });
-      row.innerHTML = `
-        <div>
-          <strong>${escapeHtml(o.restaurantName)}</strong>
-          <span>${escapeHtml(when)} · ${escapeHtml(o.id)} · ${escapeHtml(window.SwiftBiteOrders.statusLabel(o.status))}</span>
-        </div>
-        <div class="orders-row-price">${formatRs(o.total)}</div>
+      main.innerHTML = `
+        <strong>${escapeHtml(o.restaurantName)}</strong>
+        <span>${escapeHtml(when)} · ${escapeHtml(o.id)} · ${escapeHtml(window.SwiftBiteOrders.statusLabel(o.status))}</span>
       `;
-      row.addEventListener("click", () => {
+      main.addEventListener("click", () => {
         window.location.href = `tracking.html?id=${encodeURIComponent(o.id)}`;
       });
-      root.appendChild(row);
+      wrap.appendChild(main);
+
+      if (o.status === "delivered") {
+        const rate = document.createElement("a");
+        rate.className = "orders-row-rate";
+        rate.href = `rate-order.html?id=${encodeURIComponent(o.id)}`;
+        rate.textContent = "Rate";
+        rate.addEventListener("click", (e) => e.stopPropagation());
+        wrap.appendChild(rate);
+      }
+
+      const price = document.createElement("div");
+      price.className = "orders-row-price";
+      price.textContent = formatRs(o.total);
+      wrap.appendChild(price);
+
+      root.appendChild(wrap);
     });
   }
 
   renderOrderConfirmedPage();
   renderTrackingPage();
   renderOrdersHistoryPage();
+
+  function renderRateOrderPage() {
+    if (file !== "rate-order.html" || !window.SwiftBiteOrders) return;
+    const id = qs("id");
+    const order = id ? window.SwiftBiteOrders.getOrder(id) : null;
+    const title = document.getElementById("ro-title");
+    const sub = document.getElementById("ro-sub");
+    const form = document.getElementById("ro-form");
+    if (!title || !form) return;
+    if (!order || order.status !== "delivered") {
+      title.textContent = order ? "Rate when delivered" : "Order not found";
+      if (sub) sub.textContent = order ? "Come back after this order is marked delivered." : "Check your order history.";
+      form.style.display = "none";
+      return;
+    }
+    title.textContent = `Rate · ${order.restaurantName}`;
+    if (sub) sub.textContent = order.id;
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const rs = Number(document.getElementById("ro-rest-score").value) || 0;
+      const rr = Number(document.getElementById("ro-rider-score").value) || 0;
+      const rc = document.getElementById("ro-rest-comment").value.trim();
+      const ric = document.getElementById("ro-rider-comment").value.trim();
+      if (rs < 1 || rs > 5 || rr < 1 || rr > 5) {
+        showToast("Pick 1–5 stars for both restaurant and rider.");
+        return;
+      }
+      if (window.SwiftBiteRatings) {
+        window.SwiftBiteRatings.saveRating(order.id, "restaurant", rs, rc);
+        window.SwiftBiteRatings.saveRating(order.id, "rider", rr, ric);
+      }
+      window.SwiftBiteOrders.patchOrder(order.id, {
+        restaurantRating: { score: rs, comment: rc },
+        riderRating: { score: rr, comment: ric }
+      });
+      showToast("Thanks for rating!");
+      window.location.href = `orders.html`;
+    });
+  }
+
+  renderRateOrderPage();
+
+  if (file === "orders.html") {
+    window.addEventListener("swiftbite_orders_changed", renderOrdersHistoryPage);
+  }
+
+  initNotificationBell();
 
   if (window.SwiftBiteAnalytics && typeof window.SwiftBiteAnalytics.trackPageView === "function") {
     window.SwiftBiteAnalytics.trackPageView();

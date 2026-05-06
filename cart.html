@@ -6,6 +6,7 @@
   <title>SwiftBite · Basket &amp; checkout</title>
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/experience.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -13,11 +14,11 @@
 <div class="container sb-stack">
   <div class="sb-top-bar">
     <span class="sb-top-brand">SwiftBite</span>
-    <span class="sb-top-tag">Delivery</span>
+    <span class="sb-top-tag">Checkout</span>
   </div>
 
-  <h1 class="sb-screen-title">Your basket</h1>
-  <p class="sb-screen-sub">One restaurant per order · taxes &amp; delivery calculated at checkout.</p>
+  <h1 class="sb-screen-title">Basket &amp; delivery</h1>
+  <p class="sb-screen-sub">One restaurant per order. After you pay (demo), the kitchen must approve before cooking starts.</p>
 
   <div id="cart-restaurant-chip" class="cart-restaurant-chip" style="display:none;"></div>
 
@@ -25,29 +26,87 @@
   <div id="cart-lines" class="cart-lines"></div>
 
   <div id="checkout-panel" class="checkout-panel" style="display:none;">
-    <h2 class="checkout-heading">Deliver to</h2>
-    <label class="checkout-label" for="checkout-address">Street address</label>
-    <input id="checkout-address" class="checkout-input" type="text" autocomplete="street-address" placeholder="Building, street, area">
 
-    <label class="checkout-label" for="checkout-flat">Flat / floor (optional)</label>
-    <input id="checkout-flat" class="checkout-input" type="text" autocomplete="address-line2" placeholder="e.g. Block B, 3rd floor">
+    <div class="checkout-approval-callout">
+      <span class="checkout-approval-icon" aria-hidden="true">🔔</span>
+      <div>
+        <strong>Restaurant approval</strong>
+        <p>Your order is sent to the manager instantly. You’ll see live status on the tracking page — including when it’s approved, out for delivery, and delivered.</p>
+      </div>
+    </div>
 
-    <label class="checkout-label" for="checkout-phone">Phone (optional)</label>
-    <input id="checkout-phone" class="checkout-input" type="tel" autocomplete="tel" placeholder="03xx — for rider contact">
+    <div class="checkout-card">
+      <div class="checkout-card-head">
+        <span class="checkout-card-icon">📍</span>
+        <div>
+          <h2 class="checkout-card-title">Where we’re delivering</h2>
+          <p class="checkout-card-hint">Rider sees this exactly — add gates &amp; landmarks.</p>
+        </div>
+      </div>
 
-    <label class="checkout-label" for="checkout-notes">Instructions (optional)</label>
-    <textarea id="checkout-notes" class="checkout-textarea" rows="2" placeholder="Gate code, landmark, leave at door…"></textarea>
+      <label class="checkout-label" for="checkout-address">Street address</label>
+      <input id="checkout-address" class="checkout-input" type="text" autocomplete="street-address" placeholder="Building, street, sector / area">
+
+      <label class="checkout-label" for="checkout-flat">Flat / floor (optional)</label>
+      <input id="checkout-flat" class="checkout-input" type="text" autocomplete="address-line2" placeholder="e.g. Block B, 3rd floor">
+
+      <label class="checkout-label" for="checkout-phone">Phone (optional)</label>
+      <input id="checkout-phone" class="checkout-input" type="tel" autocomplete="tel" placeholder="03xx — rider may call">
+
+      <label class="checkout-label" for="checkout-notes">Drop-off notes (optional)</label>
+      <textarea id="checkout-notes" class="checkout-textarea" rows="2" placeholder="Gate code, ring bell, leave at reception…"></textarea>
+    </div>
 
     <div id="cart-min-warning" class="cart-min-warning" style="display:none;"></div>
 
-    <h2 class="checkout-heading">Summary</h2>
-    <div class="fee-row"><span>Subtotal</span><strong id="fee-subtotal">Rs. 0</strong></div>
-    <div class="fee-row"><span>Delivery</span><strong id="fee-delivery">Rs. 0</strong></div>
-    <div class="fee-row"><span>Tax</span><strong id="fee-tax">Rs. 0</strong></div>
-    <div class="fee-row fee-total"><span>Total</span><strong id="fee-total">Rs. 0</strong></div>
+    <div class="checkout-card checkout-card--extras">
+      <div class="checkout-card-head">
+        <span class="checkout-card-icon">🏷</span>
+        <div>
+          <h2 class="checkout-card-title">Promo &amp; rewards</h2>
+          <p class="checkout-card-hint">Try SWIFT10, PKR50, or FREEBIE (demo rules apply).</p>
+        </div>
+      </div>
+      <label class="checkout-label" for="checkout-voucher">Promo code</label>
+      <div class="promo-inline">
+        <input id="checkout-voucher" class="checkout-input" type="text" autocomplete="off" placeholder="Code">
+        <button type="button" id="voucher-apply-btn">Apply</button>
+      </div>
+      <p id="voucher-msg" class="sb-screen-sub" style="margin:0 0 8px;"></p>
+      <label class="checkout-label">SwiftBite points</label>
+      <p id="loyalty-balance-line" class="sb-screen-sub" style="margin:0 0 6px;">—</p>
+      <div class="promo-inline">
+        <input id="checkout-loyalty-points" class="checkout-input" type="number" min="0" step="1" placeholder="Points to use" value="0">
+        <button type="button" id="loyalty-apply-btn">Apply</button>
+      </div>
+      <label class="checkout-label" for="checkout-schedule">Schedule delivery (optional)</label>
+      <input id="checkout-schedule" class="checkout-input" type="datetime-local">
+      <label class="checkout-label">Group order</label>
+      <button type="button" class="sb-outline-btn" id="group-share-btn" style="width:100%;margin-top:4px;">Copy shareable basket link</button>
+      <input type="text" readonly class="group-share-input" id="group-share-url" title="Share link">
+    </div>
 
-    <button type="button" class="sb-primary-btn" id="checkout-btn">Place order</button>
-    <p class="sb-fine-print">Demo only — no real payment. Order saved on this device.</p>
+    <div class="checkout-card checkout-card--summary">
+      <div class="checkout-card-head">
+        <span class="checkout-card-icon">🧾</span>
+        <div>
+          <h2 class="checkout-card-title">Order summary</h2>
+          <p class="checkout-card-hint">Taxes &amp; delivery from this restaurant.</p>
+        </div>
+      </div>
+      <div class="fee-row"><span>Subtotal</span><strong id="fee-subtotal">Rs. 0</strong></div>
+      <div class="fee-row fee-discount" id="fee-discount-row" style="display:none;"><span>Promo discount</span><strong id="fee-discount">− Rs. 0</strong></div>
+      <div class="fee-row fee-discount" id="fee-loyalty-row" style="display:none;"><span>Points</span><strong id="fee-loyalty">− Rs. 0</strong></div>
+      <div class="fee-row"><span>Delivery</span><strong id="fee-delivery">Rs. 0</strong></div>
+      <div class="fee-row"><span>Tax</span><strong id="fee-tax">Rs. 0</strong></div>
+      <div class="fee-row fee-total"><span>Total due</span><strong id="fee-total">Rs. 0</strong></div>
+    </div>
+
+    <button type="button" class="sb-primary-btn sb-primary-btn--checkout" id="checkout-btn">
+      <span class="sb-checkout-btn-main">Place order</span>
+      <span class="sb-checkout-btn-sub" id="checkout-btn-sub">Awaiting kitchen approval after send</span>
+    </button>
+    <p class="sb-fine-print">Demo only — no real payment. Orders are stored on this device; open the restaurant portal in another tab to approve.</p>
   </div>
 
   <p class="sb-muted-link"><a href="dashboard.html">← Continue shopping</a></p>
@@ -57,6 +116,8 @@
 <script src="js/menu-data.js"></script>
 <script src="js/delivery-context.js"></script>
 <script src="js/orders-store.js"></script>
+<script src="js/vouchers-store.js"></script>
+<script src="js/loyalty-store.js"></script>
 <script src="js/cart-store.js"></script>
 <script src="js/swiftbite-auth.js"></script>
 <script src="js/app.js"></script>

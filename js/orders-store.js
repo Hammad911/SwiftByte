@@ -7,6 +7,7 @@
   const ORDER_STATUS = {
     PENDING_RESTAURANT: "pending_restaurant",
     DECLINED: "declined",
+    CANCELLED_BY_CUSTOMER: "cancelled_by_customer",
     PREPARING: "preparing",
     READY_FOR_PICKUP: "ready_for_pickup",
     PICKED_UP: "picked_up",
@@ -15,13 +16,26 @@
 
   /** @type {Record<string, string>} */
   const STATUS_LABEL = {
-    pending_restaurant: "Awaiting approval",
-    declined: "Declined",
-    preparing: "Preparing",
-    ready_for_pickup: "Ready for pickup",
+    pending_restaurant: "Waiting for restaurant",
+    declined: "Declined by restaurant",
+    cancelled_by_customer: "Cancelled by you",
+    preparing: "Approved · Preparing",
+    ready_for_pickup: "Ready for rider",
     picked_up: "Out for delivery",
     delivered: "Delivered",
-    placed: "Awaiting approval"
+    placed: "Waiting for restaurant"
+  };
+
+  /** Customer-facing longer status (toasts & banners). */
+  const STATUS_CUSTOMER_DETAIL = {
+    pending_restaurant: "The restaurant manager is reviewing your order.",
+    declined: "The restaurant could not take this order. You will not be charged in this demo.",
+    cancelled_by_customer: "You cancelled before the restaurant started preparing your food.",
+    preparing: "Your order was approved and the kitchen is preparing it.",
+    ready_for_pickup: "Food is packed — a rider will collect it soon.",
+    picked_up: "Your rider has picked up the order and is on the way.",
+    delivered: "Delivered — enjoy your meal!",
+    placed: "The restaurant manager is reviewing your order."
   };
 
   /** @typedef {{ restaurantId: string, itemId: string, name: string, unitPrice: number, quantity: number, extrasNote?: string }} OrderLine */
@@ -42,7 +56,17 @@
    *   tax: number,
    *   total: number,
    *   status: string,
-   *   etaMinutes: number
+   *   etaMinutes: number,
+   *   statusUpdatedAt?: number,
+   *   declineReason?: string,
+   *   voucherCode?: string,
+   *   discountAmount?: number,
+   *   scheduledFor?: string,
+   *   loyaltyPointsRedeemed?: number,
+   *   loyaltyDiscountPkr?: number,
+   *   groupOrderId?: string,
+   *   restaurantRating?: { score: number, comment?: string },
+   *   riderRating?: { score: number, comment?: string }
    * }} OrderRecord
    */
 
@@ -54,15 +78,29 @@
     }
   }
 
+  function emit(name, detail) {
+    try {
+      global.dispatchEvent(new CustomEvent(name, { detail }));
+    } catch (_) {
+      /* ignore */
+    }
+  }
+
   /** @param {OrderRecord[]} list */
   function migrateLegacyStatuses(list) {
     let dirty = false;
     const next = list.map((o) => {
-      if (o.status === "placed") {
+      /** @type {OrderRecord} */
+      let row = { ...o };
+      if (row.status === "placed") {
         dirty = true;
-        return { ...o, status: ORDER_STATUS.PENDING_RESTAURANT };
+        row.status = ORDER_STATUS.PENDING_RESTAURANT;
       }
-      return o;
+      if (typeof row.statusUpdatedAt !== "number") {
+        dirty = true;
+        row.statusUpdatedAt = row.createdAt || Date.now();
+      }
+      return row;
     });
     return { next, dirty };
   }
@@ -93,10 +131,12 @@
    * @param {Omit<OrderRecord, 'id'|'createdAt'|'status'|'etaMinutes'> & Partial<Pick<OrderRecord,'status'|'etaMinutes'>>} payload
    */
   function placeOrder(payload) {
+    const now = Date.now();
     /** @type {OrderRecord} */
     const order = {
       id: uid(),
-      createdAt: Date.now(),
+      createdAt: now,
+      statusUpdatedAt: now,
       status: payload.status || ORDER_STATUS.PENDING_RESTAURANT,
       etaMinutes: typeof payload.etaMinutes === "number" ? payload.etaMinutes : 35,
       restaurantId: payload.restaurantId,
@@ -111,9 +151,16 @@
       tax: payload.tax,
       total: payload.total
     };
+    if (payload.voucherCode) order.voucherCode = String(payload.voucherCode);
+    if (typeof payload.discountAmount === "number" && payload.discountAmount > 0) order.discountAmount = payload.discountAmount;
+    if (payload.scheduledFor) order.scheduledFor = String(payload.scheduledFor);
+    if (typeof payload.loyaltyPointsRedeemed === "number") order.loyaltyPointsRedeemed = payload.loyaltyPointsRedeemed;
+    if (typeof payload.loyaltyDiscountPkr === "number") order.loyaltyDiscountPkr = payload.loyaltyDiscountPkr;
+    if (payload.groupOrderId) order.groupOrderId = String(payload.groupOrderId);
     const all = loadAll();
     all.unshift(order);
     saveAll(all.slice(0, 40));
+    emit("swiftbite_order_placed", { order });
     return order;
   }
 
@@ -126,12 +173,36 @@
     return loadAll().find((o) => o.id === id) || null;
   }
 
-  /** @param {string} id @param {string} status */
-  function updateStatus(id, status) {
+  /**
+   * @param {string} id
+   * @param {string} status
+   * @param {{ declineReason?: string } | undefined} meta
+   */
+  function updateStatus(id, status, meta) {
     const all = loadAll();
     const idx = all.findIndex((o) => o.id === id);
     if (idx < 0) return null;
-    all[idx] = { ...all[idx], status };
+    const prevStatus = all[idx].status;
+    /** @type {OrderRecord} */
+    const row = { ...all[idx], status, statusUpdatedAt: Date.now() };
+    if (meta && typeof meta.declineReason === "string" && meta.declineReason.trim()) {
+      row.declineReason = meta.declineReason.trim();
+    }
+    all[idx] = row;
+    saveAll(all);
+    emit("swiftbite_order_status_changed", { orderId: id, status, prevStatus, order: row });
+    if (status === ORDER_STATUS.DELIVERED && prevStatus !== ORDER_STATUS.DELIVERED) {
+      emit("swiftbite_order_delivered", { order: row });
+    }
+    return all[idx];
+  }
+
+  /** @param {string} id @param {Partial<OrderRecord>} patch */
+  function patchOrder(id, patch) {
+    const all = loadAll();
+    const idx = all.findIndex((o) => o.id === id);
+    if (idx < 0) return null;
+    all[idx] = { ...all[idx], ...patch, statusUpdatedAt: Date.now() };
     saveAll(all);
     return all[idx];
   }
@@ -141,10 +212,18 @@
     return STATUS_LABEL[status] || status;
   }
 
+  /** @param {string} status */
+  function customerStatusDetail(status) {
+    return STATUS_CUSTOMER_DETAIL[status] || "";
+  }
+
   global.SwiftBiteOrders = {
+    STORAGE_KEY: KEY,
     ORDER_STATUS,
     statusLabel,
+    customerStatusDetail,
     placeOrder,
+    patchOrder,
     listOrders,
     getOrder,
     updateStatus

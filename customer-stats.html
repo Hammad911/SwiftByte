@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftBite · Your stats</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/stats-portal.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container sb-stack">
+  <div class="sb-top-bar">
+    <span class="sb-top-brand">SwiftBite</span>
+    <span class="sb-top-tag">You</span>
+  </div>
+
+  <h1 class="sb-screen-title">Your ordering stats</h1>
+  <p class="sb-screen-sub">Summaries from orders saved on this device.</p>
+
+  <div id="stats-root"></div>
+
+  <p class="sb-muted-link pp-top-links"><a href="dashboard.html">← Discover</a> · <a href="profile.html">Profile</a></p>
+</div>
+
+<script src="js/analytics.js"></script>
+<script src="js/orders-store.js"></script>
+<script src="js/swiftbite-auth.js"></script>
+<script src="js/app.js"></script>
+<script src="js/stats-portal.js"></script>
+</body>
+</html>

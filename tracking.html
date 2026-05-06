@@ -14,7 +14,41 @@
   <h1 class="sb-screen-title">Live tracking</h1>
   <p class="sb-screen-sub" id="track-summary"></p>
 
+  <div id="track-live" class="track-live" style="display:none;">
+    <div class="track-live-top">
+      <span class="track-live-label">CURRENT STATUS</span>
+      <span class="track-live-time" id="track-live-time"></span>
+    </div>
+    <div class="track-live-status" id="track-live-status"></div>
+    <p class="track-live-detail" id="track-live-detail"></p>
+  </div>
+
   <h2 class="track-restaurant" id="track-title"></h2>
+
+  <div id="track-map-wrap" class="track-map-wrap" style="display:none;">
+    <div class="track-map-card">
+      <div class="track-map-head">
+        <span id="track-map-title">Route preview</span>
+        <span class="track-map-eta" id="track-map-eta"></span>
+      </div>
+      <div class="track-map-canvas" aria-hidden="true">
+        <svg class="track-map-svg" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid meet">
+          <path class="track-map-path-bg" d="M 44 148 Q 158 28 276 64" fill="none" stroke="rgba(255,77,46,0.2)" stroke-width="8" stroke-linecap="round"/>
+          <path class="track-map-path-line" d="M 44 148 Q 158 28 276 64" fill="none" stroke="#ff4d2e" stroke-width="3" stroke-dasharray="10 8" stroke-linecap="round"/>
+          <g class="track-map-pin track-map-pin--pickup">
+            <circle cx="44" cy="148" r="12" fill="#2e7d32" stroke="#fff" stroke-width="3"/>
+            <text x="44" y="152" text-anchor="middle" fill="#fff" font-size="11" font-weight="700" font-family="Poppins,sans-serif">A</text>
+          </g>
+          <g class="track-map-pin track-map-pin--drop">
+            <circle cx="276" cy="64" r="12" fill="#1565c0" stroke="#fff" stroke-width="3"/>
+            <text x="276" y="68" text-anchor="middle" fill="#fff" font-size="11" font-weight="700" font-family="Poppins,sans-serif">B</text>
+          </g>
+        </svg>
+        <div class="track-map-rider" id="track-map-rider" title="Rider (demo)"></div>
+      </div>
+      <p class="track-map-caption" id="track-map-caption"></p>
+    </div>
+  </div>
 
   <div id="track-root" class="track-root"></div>
 
@@ -22,6 +56,7 @@
 </div>
 
 <script src="js/analytics.js"></script>
+<script src="js/menu-data.js"></script>
 <script src="js/orders-store.js"></script>
 <script src="js/swiftbite-auth.js"></script>
 <script src="js/app.js"></script>

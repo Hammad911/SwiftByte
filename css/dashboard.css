@@ -52,8 +52,15 @@ body {
   gap: 10px;
 }
 
-.header-cart {
+.header-actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  align-self: center;
+}
+
+.header-cart {
   align-self: center;
   font-size: 12px;
   font-weight: 600;
@@ -202,15 +209,37 @@ body {
   gap: 10px;
 }
 
+.cards-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+  margin: 0 -2px;
+  padding-left: 2px;
+  padding-right: 2px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cards-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 .card {
   background: var(--sb-card);
   border-radius: 16px;
   overflow: hidden;
   width: 60%;
+  flex: 0 0 68%;
+  max-width: 220px;
   cursor: pointer;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
   border: 1px solid var(--sb-border);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cards-scroll .card {
+  flex: 0 0 72%;
+  width: 72%;
 }
 
 .card:hover {
@@ -220,6 +249,7 @@ body {
 
 .card.small {
   width: 40%;
+  flex: 0 0 40%;
 }
 
 .card-img {

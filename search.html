@@ -6,6 +6,7 @@
   <title>SwiftBite · Search</title>
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/experience.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -17,6 +18,32 @@
   </div>
   <h1 class="sb-screen-title">Restaurants</h1>
   <p class="sb-screen-sub">Search by name or cuisine vibe.</p>
+
+  <div class="sb-filter-panel" id="search-filters">
+    <div class="sb-filter-title">Filters (demo — same device data)</div>
+    <div class="sb-filter-row">
+      <label>Min rating
+        <select id="sf-min-rating" aria-label="Minimum rating">
+          <option value="0">Any</option>
+          <option value="8">8+</option>
+          <option value="8.5">8.5+</option>
+          <option value="9">9+</option>
+        </select>
+      </label>
+      <label>Max ETA
+        <select id="sf-max-eta" aria-label="Maximum delivery minutes">
+          <option value="999">Any</option>
+          <option value="50">≤ 50 min</option>
+          <option value="40">≤ 40 min</option>
+          <option value="32">≤ 32 min</option>
+        </select>
+      </label>
+    </div>
+    <div class="sb-filter-row">
+      <label><input type="checkbox" id="sf-vegan"> Vegan-friendly</label>
+      <button type="button" id="sf-apply" class="promo-inline" style="padding:6px 12px;border-radius:12px;border:none;background:#ff4d2e;color:#fff;font-weight:600;font-size:11px;cursor:pointer;margin-left:auto;">Apply filters</button>
+    </div>
+  </div>
 
   <label class="sb-visually-hidden" for="search-input">Search restaurants</label>
   <input type="search" id="search-input" class="sb-input" placeholder="Try tacos, bowls…" autocomplete="off">

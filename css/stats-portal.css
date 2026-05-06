@@ -1,0 +1,133 @@
+/* Stats portals — matches SwiftBite phone frame + partner cards */
+
+.st-hint {
+  font-size: 11px;
+  color: #666;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.st-hint strong {
+  color: #333;
+}
+
+.st-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.st-stat-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  min-height: 78px;
+}
+
+.st-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+}
+
+.st-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ff4d2e;
+  margin-top: 4px;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.st-stat-sub {
+  font-size: 10px;
+  color: #666;
+  margin-top: 6px;
+  line-height: 1.35;
+}
+
+.st-section {
+  font-size: 13px;
+  font-weight: 700;
+  color: #222;
+  margin: 16px 0 8px;
+}
+
+.st-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #eee;
+  overflow: hidden;
+}
+
+.st-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.st-list li:last-child {
+  border-bottom: none;
+}
+
+.st-list-meta {
+  font-size: 10px;
+  color: #888;
+  font-weight: 600;
+}
+
+.st-empty {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 14px;
+}
+
+.st-link-card {
+  display: block;
+  padding: 12px 14px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #eee;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ff4d2e;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.st-link-card:hover {
+  background: #fff8f5;
+}
+
+.st-select-label {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.st-outlet-select {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 13px;
+  font-family: inherit;
+  margin-bottom: 12px;
+  background: #fff;
+}

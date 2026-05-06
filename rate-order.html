@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftBite · Rate order</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container sb-stack">
+  <h1 id="ro-title" class="sb-screen-title">Rate your order</h1>
+  <p id="ro-sub" class="sb-screen-sub"></p>
+
+  <form id="ro-form" class="checkout-card" style="max-width:400px;">
+    <h2 class="checkout-card-title" style="margin:0 0 8px;">Restaurant</h2>
+    <label class="checkout-label" for="ro-rest-score">Stars</label>
+    <select id="ro-rest-score" class="checkout-input">
+      <option value="">Select</option>
+      <option value="5">5 — Excellent</option>
+      <option value="4">4 — Good</option>
+      <option value="3">3 — OK</option>
+      <option value="2">2 — Poor</option>
+      <option value="1">1 — Bad</option>
+    </select>
+    <label class="checkout-label" for="ro-rest-comment">Comment (optional)</label>
+    <textarea id="ro-rest-comment" class="checkout-textarea" rows="2" placeholder="Food quality, packaging…"></textarea>
+
+    <h2 class="checkout-card-title" style="margin:16px 0 8px;">Rider</h2>
+    <label class="checkout-label" for="ro-rider-score">Stars</label>
+    <select id="ro-rider-score" class="checkout-input">
+      <option value="">Select</option>
+      <option value="5">5 — Excellent</option>
+      <option value="4">4 — Good</option>
+      <option value="3">3 — OK</option>
+      <option value="2">2 — Poor</option>
+      <option value="1">1 — Bad</option>
+    </select>
+    <label class="checkout-label" for="ro-rider-comment">Comment (optional)</label>
+    <textarea id="ro-rider-comment" class="checkout-textarea" rows="2" placeholder="Speed, communication…"></textarea>
+
+    <button type="submit" class="sb-primary-btn" style="width:100%;margin-top:12px;">Submit ratings</button>
+  </form>
+
+  <p class="sb-muted-link"><a href="orders.html">← Orders</a></p>
+</div>
+
+<script src="js/analytics.js"></script>
+<script src="js/orders-store.js"></script>
+<script src="js/notifications-store.js"></script>
+<script src="js/ratings-store.js"></script>
+<script src="js/swiftbite-auth.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
