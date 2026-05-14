@@ -131,3 +131,10 @@
   margin-bottom: 12px;
   background: #fff;
 }
+
+@media (max-width: 360px) {
+  .st-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

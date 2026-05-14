@@ -1,0 +1,348 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  RESTAURANT_OWNER
+  RIDER
+  ADMIN
+}
+
+enum DeliveryMode {
+  DELIVERY
+  PICKUP
+  BOTH
+}
+
+enum OrderStatus {
+  PENDING
+  AWAITING_RESTAURANT
+  ACCEPTED
+  PREPARING
+  READY_FOR_PICKUP
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum OrderCancelKind {
+  NONE
+  RESTAURANT_DECLINED
+  CUSTOMER_CANCELLED
+}
+
+enum VoucherType {
+  PERCENT
+  FIXED_AMOUNT
+}
+
+enum RatingTargetType {
+  RESTAURANT
+  RIDER
+  ORDER_EXPERIENCE
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+}
+
+enum LoyaltyPointType {
+  EARNED
+  REDEEMED
+}
+
+enum NotificationType {
+  ORDER_UPDATE
+  PROMO
+  SYSTEM
+}
+
+enum ChatSenderRole {
+  CUSTOMER
+  RESTAURANT
+  RIDER
+  SYSTEM
+}
+
+model User {
+  id           String    @id @default(uuid())
+  /// Stable id from SwiftBiteAuth demo session (guest-… / demo-email…).
+  clientUid    String?   @unique
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         UserRole
+  phone        String?
+  createdAt    DateTime  @default(now())
+
+  addresses Address[]
+
+  ownedRestaurants Restaurant[] @relation("RestaurantOwner")
+
+  ordersAsCustomer Order[]       @relation("CustomerOrders")
+  ordersAsRider    Order[]       @relation("RiderOrders")
+
+  notifications Notification[]
+  chatMessages   ChatMessage[]
+
+  ratingsGiven Rating[] @relation("RaterRatings")
+
+  riderEarnings RiderEarning[]
+  payouts       Payout[]
+
+  loyaltyPoints LoyaltyPoint[]
+
+  deliveries Delivery[] @relation("DeliveryRider")
+}
+
+model Address {
+  id          String @id @default(uuid())
+  userId      String
+  label       String?
+  lat         Decimal @db.Decimal(10, 7)
+  lng         Decimal @db.Decimal(10, 7)
+  fullAddress String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Restaurant {
+  id              String       @id @default(uuid())
+  /// Matches SwiftBiteMenu restaurant id (e.g. taco-cubano).
+  slug            String       @unique
+  ownerId         String
+  name            String
+  description     String?
+  logo            String?
+  banner          String?
+  cuisineTypes    String[]
+  isOpen          Boolean      @default(true)
+  deliveryMode    DeliveryMode @default(DELIVERY)
+  minOrder        Decimal      @db.Decimal(12, 2) @default(0)
+  prepTime        Int          // minutes
+  commissionRate  Decimal      @db.Decimal(5, 4) @default(0)
+
+  owner User @relation("RestaurantOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+
+  menuCategories MenuCategory[]
+  menuItems      MenuItem[]
+  orders         Order[]
+}
+
+model MenuCategory {
+  id           String @id @default(uuid())
+  restaurantId String
+  name         String
+  sortOrder    Int    @default(0)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  menuItems MenuItem[]
+}
+
+model MenuItem {
+  id           String   @id @default(uuid())
+  restaurantId String
+  /// Matches SwiftBiteMenu item id within this restaurant.
+  slug         String?
+  categoryId   String?
+  name         String
+  description  String?
+  photo        String?
+  price        Decimal  @db.Decimal(12, 2)
+  isAvailable  Boolean  @default(true)
+  dietaryTags  String[]
+
+  restaurant Restaurant   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  category   MenuCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  modifierGroups ModifierGroup[]
+  orderItems     OrderItem[]
+
+  @@unique([restaurantId, slug])
+}
+
+model ModifierGroup {
+  id          String @id @default(uuid())
+  menuItemId  String
+  name        String
+  minSelect   Int    @default(0)
+  maxSelect   Int    @default(1)
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  options ModifierOption[]
+}
+
+model ModifierOption {
+  id         String @id @default(uuid())
+  groupId    String
+  name       String
+  extraCost  Decimal @db.Decimal(12, 2) @default(0)
+
+  group ModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  customerId   String
+  restaurantId String
+  riderId      String?
+  status       OrderStatus @default(PENDING)
+
+  /// Legacy only: old rows may still hold a snapshot here. Prefer typed columns + OrderItem.
+  items Json?
+
+  cancelKind    OrderCancelKind @default(NONE)
+  declineReason String?
+
+  restaurantNameSnap   String?
+  deliveryAddressLine String?
+  deliveryFlatBlock   String?
+  deliveryPhone       String?
+  deliveryInstructions String?
+
+  etaMinutes Int?
+  taxAmount  Decimal @db.Decimal(12, 2) @default(0)
+
+  voucherCode           String?
+  groupOrderId          String?
+  loyaltyPointsRedeemed Int?
+  loyaltyDiscountPkr    Decimal? @db.Decimal(12, 2)
+
+  subtotal     Decimal @db.Decimal(12, 2)
+  deliveryFee  Decimal @db.Decimal(12, 2) @default(0)
+  discount     Decimal @db.Decimal(12, 2) @default(0)
+  total        Decimal @db.Decimal(12, 2)
+  scheduledFor DateTime?
+
+  customer   User       @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Restrict)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Restrict)
+  rider      User?      @relation("RiderOrders", fields: [riderId], references: [id], onDelete: SetNull)
+
+  orderItems   OrderItem[]
+  delivery     Delivery?
+  riderEarning RiderEarning?
+  ratings      Rating[]
+  chatMessages ChatMessage[]
+  loyaltyPoints LoyaltyPoint[]
+}
+
+model OrderItem {
+  id             String @id @default(uuid())
+  orderId        String
+  menuItemId     String
+  quantity       Int
+  customisations Json?
+  price          Decimal @db.Decimal(12, 2)
+
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
+}
+
+model Voucher {
+  id         String     @id @default(uuid())
+  code       String     @unique
+  type       VoucherType
+  value      Decimal    @db.Decimal(12, 2)
+  minOrder   Decimal    @db.Decimal(12, 2) @default(0)
+  validFrom  DateTime
+  validTo    DateTime
+  usageLimit Int?
+  usedCount  Int        @default(0)
+}
+
+model Delivery {
+  id          String    @id @default(uuid())
+  orderId     String    @unique
+  riderId     String
+  pickedUpAt  DateTime?
+  deliveredAt DateTime?
+  proofPhoto  String?
+
+  order  Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  rider  User  @relation("DeliveryRider", fields: [riderId], references: [id], onDelete: Restrict)
+}
+
+model Rating {
+  id         String           @id @default(uuid())
+  orderId    String
+  raterId    String
+  targetId   String
+  targetType RatingTargetType
+  score      Int
+  comment    String?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  rater User  @relation("RaterRatings", fields: [raterId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  message   String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ChatMessage {
+  id         String         @id @default(uuid())
+  orderId    String
+  senderId   String
+  senderRole ChatSenderRole
+  message    String
+  createdAt  DateTime       @default(now())
+
+  order  Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sender User  @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model RiderEarning {
+  id          String    @id @default(uuid())
+  riderId     String
+  orderId     String    @unique
+  baseAmount  Decimal   @db.Decimal(12, 2)
+  bonusAmount Decimal   @db.Decimal(12, 2) @default(0)
+  settledAt   DateTime?
+
+  rider User  @relation(fields: [riderId], references: [id], onDelete: Restrict)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Payout {
+  id          String       @id @default(uuid())
+  riderId     String
+  amount      Decimal      @db.Decimal(12, 2)
+  status      PayoutStatus @default(PENDING)
+  requestedAt DateTime     @default(now())
+  paidAt      DateTime?
+
+  rider User @relation(fields: [riderId], references: [id], onDelete: Restrict)
+}
+
+model LoyaltyPoint {
+  id        String              @id @default(uuid())
+  userId    String
+  orderId   String?
+  points    Int
+  type      LoyaltyPointType
+  createdAt DateTime            @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+}

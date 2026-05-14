@@ -2,17 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#2c2c30">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <title>SwiftBite · Discover</title>
 
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/experience.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/mobile-web-app.css">
 </head>
 
 <body>
 
-<div class="container">
+<div class="container discover-app">
 
   <!-- HEADER -->
   <div class="header">
@@ -25,12 +32,13 @@
         🔔
         <span class="sb-notify-badge" id="sb-notify-badge" hidden>0</span>
       </button>
-    <div class="header-cart" id="header-cart-btn" role="button" tabindex="0" aria-label="Open cart">
-      🛒 <span id="cart-badge">0</span>
-    </div>
+      <div class="header-cart" id="header-cart-btn" role="button" tabindex="0" aria-label="Open cart">
+        🛒 <span id="cart-badge">0</span>
+      </div>
     </div>
   </div>
 
+  <div class="sb-page-body discover-body">
   <!-- BANNER -->
   <div class="banner">
     <div class="banner-text">
@@ -138,7 +146,7 @@
     <div class="scroll">
 
       <div class="popular-item" data-restaurant-id="saltish" data-item-id="salmon-poke-bowl">
-        <div class="popular-img" style="background-image:url('assets/8.jfif')"></div>
+        <div class="popular-img" style="background-image:url('assets/5.jfif')"></div>
         <p class="popular-label">Bowls</p>
       </div>
 
@@ -148,7 +156,7 @@
       </div>
 
       <div class="popular-item" data-restaurant-id="taco-cubano" data-item-id="classic-beef-taco">
-        <div class="popular-img" style="background-image:url('assets/4.jfif')"></div>
+        <div class="popular-img" style="background-image:url('assets/1.png')"></div>
         <p class="popular-label">Tacos</p>
       </div>
 
@@ -175,23 +183,15 @@
     </div>
   </div>
 
-  <div class="partner-strip">
-    <span>More</span>
-    <a href="customer-stats.html">Your stats</a>
-    <a href="restaurant-analytics.html">Merchant analytics</a>
-    <a href="admin-portal.html">Admin</a>
-    <a href="restaurant-portal.html">Restaurant</a>
-    <a href="rider-portal.html">Rider</a>
-  </div>
+  </div><!-- .discover-body -->
 
-  <!-- NAV -->
-  <div class="nav">
+  <nav class="nav sb-discover-nav" aria-label="Primary">
     <div class="nav-item active">🏠<span>Discover</span></div>
     <div class="nav-item">🍔<span>Restaurants</span></div>
     <div class="nav-item">🔍<span>Search</span></div>
     <div class="nav-item">❤<span>Favorite</span></div>
     <div class="nav-item">👤<span>Profile</span></div>
-  </div>
+  </nav>
 
 </div>
 

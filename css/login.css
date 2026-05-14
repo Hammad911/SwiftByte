@@ -8,6 +8,8 @@
   --sb-surface: #fafafa;
   --sb-text: #161618;
   --sb-muted: #6f6f76;
+  --sb-app-pad-top: env(safe-area-inset-top, 0px);
+  --sb-app-pad-bot: env(safe-area-inset-bottom, 0px);
 }
 
 * {
@@ -21,24 +23,49 @@ body {
   background: linear-gradient(165deg, var(--sb-page-top) 0%, var(--sb-page-bottom) 55%);
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 16px;
+  align-items: flex-start;
+  min-height: 100dvh;
+  min-height: 100svh;
+  margin: 0;
+  padding: var(--sb-app-pad-top) env(safe-area-inset-right, 0px) var(--sb-app-pad-bot)
+    env(safe-area-inset-left, 0px);
 }
 
 .container {
-  width: 340px;
-  height: 680px;
-  max-height: calc(100vh - 32px);
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  min-height: calc(100dvh - var(--sb-app-pad-top) - var(--sb-app-pad-bot));
+  min-height: calc(100svh - var(--sb-app-pad-top) - var(--sb-app-pad-bot));
+  max-height: none;
   background: var(--sb-surface);
-  border-radius: 28px;
-  padding: 24px 22px;
+  border-radius: 0;
+  padding: 18px max(18px, env(safe-area-inset-right)) 28px max(18px, env(safe-area-inset-left));
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  box-shadow:
-    0 32px 64px rgba(0, 0, 0, 0.38),
-    0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+@media (min-width: 1024px) {
+  body {
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  }
+
+  .container {
+    width: min(100%, 430px);
+    border-radius: 24px;
+    padding: clamp(18px, 5vw, 24px) clamp(18px, 5vw, 22px);
+    min-height: min(600px, calc(100dvh - 24px));
+    box-shadow:
+      0 24px 48px rgba(0, 0, 0, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+}
+
+.sb-role-row {
+  flex-wrap: wrap;
 }
 
 .logo {
@@ -157,11 +184,11 @@ label {
 
 input {
   width: 100%;
-  padding: 13px 14px;
+  padding: 14px 16px;
   border-radius: 14px;
   border: 1px solid #e2e2e5;
   margin-bottom: 14px;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--sb-text);
   background: #fff;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;

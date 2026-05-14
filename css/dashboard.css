@@ -11,6 +11,8 @@
   --sb-text: #161618;
   --sb-muted: #6f6f76;
   --sb-border: rgba(0, 0, 0, 0.06);
+  --sb-app-pad-top: env(safe-area-inset-top, 0px);
+  --sb-app-pad-bot: env(safe-area-inset-bottom, 0px);
 }
 
 * {
@@ -22,32 +24,55 @@
 
 body {
   background: linear-gradient(165deg, var(--sb-page-top) 0%, var(--sb-page-bottom) 55%);
+  margin: 0;
+  min-height: 100dvh;
+  min-height: 100svh;
+  padding: var(--sb-app-pad-top) env(safe-area-inset-right, 0px) var(--sb-app-pad-bot)
+    env(safe-area-inset-left, 0px);
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 16px;
+  align-items: flex-start;
 }
 
 .container {
-  width: 340px;
-  height: 680px;
-  max-height: calc(100vh - 32px);
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
   background: var(--sb-surface);
-  border-radius: 28px;
-  padding: 14px 14px 12px;
+  border-radius: 0;
+  padding: 14px max(14px, env(safe-area-inset-right)) 12px max(14px, env(safe-area-inset-left));
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow:
-    0 32px 64px rgba(0, 0, 0, 0.38),
-    0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+  min-height: calc(100dvh - var(--sb-app-pad-top) - var(--sb-app-pad-bot));
+  min-height: calc(100svh - var(--sb-app-pad-top) - var(--sb-app-pad-bot));
+}
+
+/* Floating “phone card” only on large viewports — real phones & tablets stay full-width */
+@media (min-width: 1024px) {
+  body {
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  }
+
+  .container {
+    max-width: 430px;
+    margin-inline: auto;
+    border-radius: 24px;
+    padding: 14px 14px 12px;
+    box-shadow:
+      0 24px 48px rgba(0, 0, 0, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.06);
+    min-height: min(680px, calc(100dvh - 24px));
+    min-height: min(680px, calc(100svh - 24px));
+  }
 }
 
 /* Header */
 .header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 12px;
   gap: 10px;
 }
@@ -102,7 +127,7 @@ body {
 .location {
   flex: 1;
   min-width: 0;
-  padding-top: 2px;
+  padding-top: 0;
   font-size: 13px;
   font-weight: 600;
   color: var(--sb-text);
@@ -342,32 +367,6 @@ body {
   text-align: center;
 }
 
-.partner-strip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 10px 8px;
-  margin-top: 8px;
-  font-size: 11px;
-  color: var(--sb-muted);
-}
-
-.partner-strip span {
-  font-weight: 600;
-}
-
-.partner-strip a {
-  color: var(--sb-accent);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.partner-strip a:hover {
-  text-decoration: underline;
-}
-
 /* Bottom nav */
 .nav {
   margin-top: auto;
@@ -399,4 +398,63 @@ body {
 .nav-item.active {
   color: var(--sb-accent);
   background: var(--sb-accent-soft);
+}
+
+/* Discover: full viewport column — scroll feed + bottom nav */
+.discover-app {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: calc(100dvh - var(--sb-app-pad-top) - var(--sb-app-pad-bot));
+  max-height: calc(100svh - var(--sb-app-pad-top) - var(--sb-app-pad-bot));
+  min-height: calc(100dvh - var(--sb-app-pad-top) - var(--sb-app-pad-bot));
+  min-height: calc(100svh - var(--sb-app-pad-top) - var(--sb-app-pad-bot));
+}
+
+/* Floating “phone card” only on large viewports — real phones & tablets stay full-width */
+@media (min-width: 1024px) {
+  .discover-app {
+    max-height: min(680px, calc(100dvh - 24px));
+    max-height: min(680px, calc(100svh - 24px));
+    min-height: min(640px, calc(100dvh - 24px));
+    min-height: min(640px, calc(100svh - 24px));
+  }
+}
+
+.discover-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+}
+
+.discover-app .header {
+  flex-shrink: 0;
+}
+
+.sb-discover-nav {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.discover-app .nav-item {
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 4px;
+}
+
+@media (max-width: 380px) {
+  .banner h3 {
+    font-size: 13px;
+  }
+
+  .banner button {
+    width: 100%;
+    margin-top: 10px;
+  }
 }

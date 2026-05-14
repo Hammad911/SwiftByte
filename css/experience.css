@@ -64,13 +64,6 @@
   transform: scale(0.98);
 }
 
-.header-actions {
-  margin-left: auto;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-
 .sb-notify-btn {
   border: none;
   background: #fff;

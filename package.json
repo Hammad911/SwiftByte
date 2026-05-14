@@ -1,0 +1,14 @@
+{
+  "name": "swiftbite-monorepo",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev:api": "npm run dev -w swiftbite-api",
+    "dev:admin": "npm run dev -w @swiftbite/admin",
+    "dev:customer": "npm run dev -w @swiftbite/customer",
+    "dev:restaurant": "npm run dev -w @swiftbite/restaurant",
+    "dev:rider": "npm run dev -w @swiftbite/rider",
+    "db:push": "npm run db:push -w swiftbite-api",
+    "db:seed": "npm run db:seed -w swiftbite-api"
+  }
+}

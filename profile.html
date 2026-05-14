@@ -2,11 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#2c2c30">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <title>SwiftBite · Profile</title>
   <link rel="stylesheet" href="css/dashboard.css">
   <link rel="stylesheet" href="css/screens.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/mobile-web-app.css">
 </head>
 <body>
 
@@ -19,6 +26,14 @@
     <p id="profile-email-line" class="profile-line" style="display:none;"></p>
     <a href="customer-stats.html" class="profile-link-row">Your stats &amp; summaries</a>
     <a href="orders.html" class="profile-link-row">Order history</a>
+    <details class="sb-profile-tools">
+      <summary class="profile-link-row sb-tools-summary">Partner &amp; admin tools</summary>
+      <div class="sb-tools-panel">
+        <a href="restaurant-portal.html" class="profile-link-row">Restaurant portal</a>
+        <a href="rider-portal.html" class="profile-link-row">Rider portal</a>
+        <a href="analytics-dashboard.html" class="profile-link-row">Analytics dashboard</a>
+      </div>
+    </details>
     <p id="profile-loyalty-line" class="loyalty-pill" style="display:none;"></p>
     <button type="button" class="sb-primary-btn profile-logout" id="logout-btn">Log out</button>
   </div>

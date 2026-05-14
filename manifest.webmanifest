@@ -1,0 +1,10 @@
+{
+  "name": "SwiftBite",
+  "short_name": "SwiftBite",
+  "description": "Order food with SwiftBite",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101012",
+  "theme_color": "#2c2c30"
+}
